@@ -14,7 +14,7 @@ C: `icu` (for `pontarius-xmpp`)
 
 # run
 
-edit `config.toml` and run `stack run`/`cabal run`
+edit `config.toml` and run `stack run` or `cabal run`
 
 # design
 
