@@ -1,0 +1,110 @@
+cabal-version:       2.4
+name:                echobot
+version:             0.0.0.0
+synopsis:            a chat bot for IRC/Matrix/Mattermost/Telegram/XMPP
+description:         a chat bot for IRC/Matrix/Mattermost/Telegram/XMPP
+license:             AGPL-3.0-only
+license-file:        LICENSE
+author:              lincot
+category:            Network
+build-type:          Simple
+extra-doc-files:     README.md
+
+common common-options
+  build-depends:       base
+                     , relude
+                     , network
+                     , co-log
+                     , tomland
+                     , unordered-containers
+                     , mtl
+                     , unliftio
+                     , unliftio-core
+                     , text
+                     , req
+                     , aeson
+                     , data-default
+                     , pontarius-xmpp
+                     , mattermost-api
+
+  mixins:              base hiding (Prelude)
+                     , relude (Relude as Prelude)
+
+  ghc-options:         -Wall
+                       -Wcompat
+                       -Widentities
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+  if impl(ghc >= 8.0)
+    ghc-options:       -Wredundant-constraints
+  if impl(ghc >= 8.2)
+    ghc-options:       -fhide-source-paths
+  if impl(ghc >= 8.4)
+    ghc-options:       -Wmissing-export-lists
+
+  default-language:    Haskell2010
+  default-extensions: DataKinds
+                    , DeriveGeneric
+                    , OverloadedStrings
+                    , PatternSynonyms
+                    , LambdaCase
+
+library
+  import:              common-options
+  hs-source-dirs:      src
+  exposed-modules:     Echobot
+  other-modules:       Echobot.App.Env
+                       Echobot.App.Monad
+                       Echobot.Bots.Irc
+                       Echobot.Bots.Matrix
+                       Echobot.Bots.Matrix.Types
+                       Echobot.Bots.Mattermost
+                       Echobot.Bots.Telegram
+                       Echobot.Bots.Telegram.Types
+                       Echobot.Bots.Xmpp
+                       Echobot.Config
+                       Echobot.Connectors.Handle
+                       Echobot.Connectors.Mattermost
+                       Echobot.Connectors.Xmpp
+                       Echobot.Core.Bot
+                       Echobot.Core.Dflts
+                       Echobot.Core.Irc
+                       Echobot.Core.Matrix
+                       Echobot.Core.Mattermost
+                       Echobot.Core.Msgs
+                       Echobot.Core.Telegram
+                       Echobot.Core.ToConnect
+                       Echobot.Core.Users
+                       Echobot.Core.Xmpp
+                       Echobot.Db
+                       Echobot.Runner
+
+executable echobot
+  import:              common-options
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  build-depends:       echobot
+  ghc-options:         -threaded
+                       -rtsopts
+                       -with-rtsopts=-N
+
+-- test-suite echobot-test
+--   import:              common-options
+--   type:                exitcode-stdio-1.0
+--   hs-source-dirs:      test
+--   main-is:             Spec.hs
+--   build-depends:       echobot
+--   ghc-options:         -threaded
+--                        -rtsopts
+--                        -with-rtsopts=-N
+
+-- benchmark echobot-benchmark
+--   import:              common-options
+--   type:                exitcode-stdio-1.0
+--   hs-source-dirs:      benchmark
+--   main-is:             Main.hs
+--   build-depends:       gauge
+--                      , echobot
+--   ghc-options:         -threaded
+--                        -rtsopts
+--                        -with-rtsopts=-N

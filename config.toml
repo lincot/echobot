@@ -1,0 +1,51 @@
+log.severity = "Debug"
+
+[connect]
+  IRC        = true
+  Matrix     = true
+  Mattermost = false
+  Telegram   = true
+  XMPP       = false
+
+[IRC]
+  host = "irc.freenode.org"
+  port = "6667"
+  chan = "#tutbot-testing"
+  nick = "echobot"
+  name = "echobot"
+
+[Matrix]
+  # "since" param to make the first sync
+  # can be next_batch of a previous sync
+  # if empty, full sync will be made
+  since = ""
+  token = ""
+  name = "@example:matrix.org"
+  homeserver = "matrix.org"
+
+[Mattermost]
+  host = ""
+  port = 0
+  path = ""
+  nick = ""
+  password = ""
+
+[Telegram]
+  offset = 0
+  token = ""
+
+[XMPP]
+  host = "test.pontarius.org"
+  nick = ""
+  password = ""
+
+[defaults]
+  repeatCount = 1
+
+[messages]
+  help = """i repeat (N times) everything you write, except:
+/help   -> print this message
+/repeat -> show and change your N"""
+  repeat = """your current repeat count (N) is %d
+enter your next N (0 <= N <= 5):"""
+  invalid = """invalid, again please:"""
