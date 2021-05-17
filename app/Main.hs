@@ -1,3 +1,1 @@
-module Main (main) where
-
-import Echobot (main)
+module Main (main) where import Echobot (main)

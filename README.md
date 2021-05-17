@@ -4,19 +4,19 @@ a chat bot for IRC/Matrix/Mattermost/Telegram/XMPP in Haskell
 
 with Matrix only unencrypted rooms work
 
-# external deps
+## external deps
 
-C: `icu` (for `pontarius-xmpp`)
+- `icu` for `pontarius-xmpp`
 
-# build
+## build
 
-`stack build`/`cabal build`
+`stack build` or `cabal build`
 
-# run
+## run
 
 edit `config.toml` and run `stack run` or `cabal run`
 
-# design
+## design
 
 config gets read in `Echobot.Config`, then turned into an `AppEnv` in `Echobot`
 
