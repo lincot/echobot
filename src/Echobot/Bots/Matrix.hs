@@ -35,11 +35,11 @@ sync = do
   matrix <- grab
   since' <- readIORef $ mSince matrix
   let url = apiBase (mHomeserver matrix) /: "sync"
-      options
+      params
         =  "access_token" =:    mToken matrix
         <> "timeout"      =:    (10000 :: Int)
         <> "since" `queryParam` since'
-  rb <- responseBody <$> req GET url NoReqBody jsonResponse options
+  rb <- responseBody <$> req GET url NoReqBody jsonResponse params
   log D $ "[Matrix] got:\n" <> show rb
   writeIORef (mSince matrix) $ Just $ next_batch rb
   return $ rooms rb
@@ -70,8 +70,8 @@ sendMessageM (roomId, msgId) msg = do
   let url = apiBase (mHomeserver matrix) /: "rooms" /: roomId /: "send"
           /: "m.room.message" /: msgId
       reqBody = ReqBodyJson $ MessageEvent "m.text" msg
-      options = "access_token" =: mToken matrix
-  rb <- responseBody <$> req PUT url reqBody jsonResponse options
+      params  = "access_token" =: mToken matrix
+  rb <- responseBody <$> req PUT url reqBody jsonResponse params
   log D $ "[Matrix] got:\n" <> show rb
   case parseEither parseJSON rb of
     Right (ResponseSuccess _  ) -> pass

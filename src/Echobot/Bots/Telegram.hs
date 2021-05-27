@@ -1,4 +1,4 @@
-{-# OPTIONS -fno-warn-orphans #-}
+{-# OPTIONS -Wno-orphans #-}
 
 module Echobot.Bots.Telegram
   ( tgBot
@@ -27,6 +27,7 @@ import           Network.HTTP.Req
 
 instance ToText Int where
   toText = show
+  {-# INLINE toText #-}
 
 tgBot :: App (Bot Int Int)
 tgBot = Bot pass pass getMessagesTg sendMessageTg "Telegram"

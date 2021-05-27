@@ -1,5 +1,5 @@
-{-# OPTIONS -fno-warn-missing-fields #-}
-{-# LANGUAGE RecordWildCards         #-}
+{-# OPTIONS -Wno-missing-fields #-}
+{-# LANGUAGE RecordWildCards    #-}
 
 module Echobot
   ( main

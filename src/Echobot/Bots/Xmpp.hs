@@ -1,5 +1,5 @@
-{-# OPTIONS -fno-warn-orphans #-}
-{-# LANGUAGE TupleSections    #-}
+{-# OPTIONS -Wno-orphans   #-}
+{-# LANGUAGE TupleSections #-}
 
 module Echobot.Bots.Xmpp
   ( xmppBot
