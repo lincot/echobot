@@ -63,18 +63,6 @@ getUpdates = do
         return upds
       Nothing  -> getUpdates
 
-sendMessageTg :: Int -> Text -> App ()
-sendMessageTg chat msg = do
-  tg <- grab
-  r <- reqTg (tgToken tg) "sendMessage"
-    $  "chat_id" =: chat
-    <> "text"    =: msg :: App (Either Text TgMessage)
-  case r of
-    Left e -> do
-      log W $ "[Telegram] could not deliver message\n" <> e
-      sendMessageTg chat msg
-    _ -> pass
-
 getMessagesTg :: App [(Int, Int, Text)]
 getMessagesTg = do
   upds <- getUpdates
@@ -85,3 +73,15 @@ parseUpdate = \case
   TgUpdate _ (Just (TgMessage (Just (TgUser usr)) (TgChat chat) (Just msg))) ->
     Just (chat, usr, msg)
   _ -> Nothing
+
+sendMessageTg :: Int -> Text -> App ()
+sendMessageTg chat msg = do
+  tg <- grab
+  r <- reqTg (tgToken tg) "sendMessage"
+    $  "chat_id" =: chat
+    <> "text"    =: msg
+  case r of
+    Left e -> do
+      log W $ "[Telegram] could not deliver message\n" <> e
+      sendMessageTg chat msg
+    Right TgMessage {} -> pass

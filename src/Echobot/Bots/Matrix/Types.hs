@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass #-}
+
 module Echobot.Bots.Matrix.Types
   ( SyncState(..)
   , Rooms(..)
@@ -15,9 +17,7 @@ import qualified Data.HashMap.Lazy             as HML
 data SyncState = SyncState
   { next_batch :: Text
   , rooms      :: Rooms
-  } deriving (Show, Generic)
-
-instance FromJSON SyncState
+  } deriving (Show, Generic, FromJSON)
 
 newtype Rooms = Rooms
   { joinedRooms :: HML.HashMap Text JoinedRoom
@@ -30,17 +30,13 @@ instance FromJSON Rooms where
 
 newtype JoinedRoom = JoinedRoom
   { timeline :: Timeline
-  } deriving (Show, Generic)
-
-instance FromJSON JoinedRoom
+  } deriving (Show, Generic, FromJSON)
 
 data Timeline = Timeline
   { events     :: [RoomEvent]
   , limited    :: Bool
   , prev_batch :: Text
-  } deriving (Show, Generic)
-
-instance FromJSON Timeline
+  } deriving (Show, Generic, FromJSON)
 
 data RoomEvent = RoomEvent
   { content   :: Object
@@ -60,9 +56,7 @@ instance FromJSON RoomEvent where
 data MessageEvent = MessageEvent
   { msgtype :: Text
   , body    :: Text
-  } deriving (Show, Generic)
-
-instance ToJSON MessageEvent
+  } deriving (Show, Generic, ToJSON)
 
 data EventResponse
   = NoResponse
