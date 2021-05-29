@@ -11,6 +11,7 @@ module Echobot.App.Env
   ( Env(..)
   , Has(..)
   , grab
+  , hasField'
   )
 where
 
@@ -18,7 +19,6 @@ import           Colog                          ( HasLog(..)
                                                 , LogAction(..)
                                                 , Message
                                                 )
-import           Echobot.Core.ToConnect         ( ToConnect )
 import           Echobot.Core.Dflts             ( Dflts )
 import           Echobot.Core.Irc               ( Irc )
 import           Echobot.Core.Msgs              ( Msgs )
@@ -26,10 +26,13 @@ import           Echobot.Core.Matrix            ( Matrix )
 import           Echobot.Core.Mattermost        ( Mattermost )
 import           Echobot.Core.Telegram          ( Telegram )
 import           Echobot.Core.Xmpp              ( Xmpp )
+import           UnliftIO.Exception             ( evaluate
+                                                , try
+                                                )
+import           Control.Monad.IO.Unlift        ( MonadUnliftIO )
 
 data Env (m :: Type -> Type) = Env
   { envLogAction  :: !(LogAction m Message)
-  , envConnect    :: !ToConnect
   , envDflts      :: !Dflts
   , envMsgs       :: !Msgs
   , envIrc        :: Irc
@@ -52,7 +55,6 @@ class Has field env where
   obtain :: env -> field
 
 instance Has (LogAction m Message) (Env m) where obtain = envLogAction
-instance Has ToConnect             (Env m) where obtain = envConnect
 instance Has Dflts                 (Env m) where obtain = envDflts
 instance Has Msgs                  (Env m) where obtain = envMsgs
 instance Has Irc                   (Env m) where obtain = envIrc
@@ -64,3 +66,14 @@ instance Has Xmpp                  (Env m) where obtain = envXmpp
 grab :: forall field env m . (MonadReader env m, Has field env) => m field
 grab = asks $ obtain @field
 {-# INLINE grab #-}
+
+hasField'
+  :: forall field env m
+   . (MonadReader env m, Has field env, MonadUnliftIO m)
+  => m Bool
+hasField' = do
+  f   <- grab @field
+  eef <- try $ evaluate f
+  case eef of
+    Left (SomeException _) -> return False
+    _                      -> return True

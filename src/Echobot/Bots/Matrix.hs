@@ -1,5 +1,5 @@
 module Echobot.Bots.Matrix
-  ( mBot
+  ( matrixBot
   )
 where
 
@@ -26,8 +26,8 @@ import           Echobot.Core.Bot               ( Bot(..) )
 import           Echobot.Core.Matrix            ( Matrix(..) )
 import           Network.HTTP.Req
 
-mBot :: App (Bot (Text, Text) Text)
-mBot = Bot pass pass getMessagesM sendMessageM "Matrix"
+matrixBot :: App (Bot (Text, Text) Text)
+matrixBot = Bot pass pass getMessagesM sendMessageM "Matrix"
   <$> newIORef mempty
 
 sync :: App Rooms

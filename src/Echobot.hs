@@ -1,5 +1,6 @@
 {-# OPTIONS -Wno-missing-fields #-}
 {-# LANGUAGE RecordWildCards    #-}
+{-# LANGUAGE TypeApplications   #-}
 
 module Echobot
   ( main
@@ -10,7 +11,10 @@ import           Colog                          ( filterBySeverity
                                                 , msgSeverity
                                                 , richMessageAction
                                                 )
-import           Echobot.App.Env                ( Env(..) )
+import           Data.List                      ( foldl1 )
+import           Echobot.App.Env                ( Env(..)
+                                                , hasField'
+                                                )
 import           Echobot.App.Monad              ( AppEnv
                                                 , runApp
                                                 )
@@ -38,19 +42,18 @@ import           Echobot.Connectors.Xmpp        ( xmppConnect )
 import           Echobot.Connectors.Mattermost  ( mattermostConnect )
 import           Echobot.Runner                 ( botRunner )
 import           Echobot.Bots.Irc               ( ircBot )
-import           Echobot.Bots.Telegram          ( tgBot )
-import           Echobot.Bots.Matrix            ( mBot )
-import           Echobot.Bots.Mattermost        ( mmBot )
+import           Echobot.Bots.Telegram          ( telegramBot )
+import           Echobot.Bots.Matrix            ( matrixBot )
+import           Echobot.Bots.Mattermost        ( mattermostBot )
 import           Echobot.Bots.Xmpp              ( xmppBot )
-import           UnliftIO.Async                 ( runConcurrently
-                                                , Concurrently(..)
+import           UnliftIO.Async                 ( Concurrently(..)
+                                                , runConcurrently
                                                 )
 
 mkAppEnv :: Config -> IO AppEnv
 mkAppEnv c@Config {..} =
   pure Env
     { envLogAction = filterBySeverity cLogSeverity msgSeverity richMessageAction
-    , envConnect   = cConnect
     , envDflts     = cDflts
     , envMsgs      = cMsgs
     }
@@ -116,12 +119,20 @@ addXmpp Config {..} env = do
   return env { envXmpp = xmpp }
 
 runBots :: AppEnv -> IO ()
-runBots env@Env {..} = runApp env . void . runConcurrently $ (,,,,)
-  <$> Concurrently (when (connectIrc        envConnect) (botRunner =<< ircBot ))
-  <*> Concurrently (when (connectMatrix     envConnect) (botRunner =<< mBot   ))
-  <*> Concurrently (when (connectMattermost envConnect) (botRunner =<< mmBot  ))
-  <*> Concurrently (when (connectTelegram   envConnect) (botRunner =<< tgBot  ))
-  <*> Concurrently (when (connectXmpp       envConnect) (botRunner =<< xmppBot))
+runBots env = runApp env $ do
+  i  <- hasField' @Irc
+  m  <- hasField' @Matrix
+  mm <- hasField' @Mattermost
+  tg <- hasField' @Telegram
+  x  <- hasField' @Xmpp
+  let actions = catMaybes
+        [ if i  then Just $ botRunner =<< ircBot        else Nothing
+        , if m  then Just $ botRunner =<< matrixBot     else Nothing
+        , if mm then Just $ botRunner =<< mattermostBot else Nothing
+        , if tg then Just $ botRunner =<< telegramBot   else Nothing
+        , if x  then Just $ botRunner =<< xmppBot       else Nothing
+        ]
+  runConcurrently $ foldl1 (*>) $ Concurrently <$> actions
 
 main :: IO ()
 main = loadConfig >>= mkAppEnv >>= runBots

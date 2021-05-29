@@ -1,7 +1,7 @@
 {-# OPTIONS -Wno-orphans #-}
 
 module Echobot.Bots.Telegram
-  ( tgBot
+  ( telegramBot
   )
 where
 
@@ -29,8 +29,8 @@ instance ToText Int where
   toText = show
   {-# INLINE toText #-}
 
-tgBot :: App (Bot Int Int)
-tgBot = Bot pass pass getMessagesTg sendMessageTg "Telegram"
+telegramBot :: App (Bot Int Int)
+telegramBot = Bot pass pass getMessagesTg sendMessageTg "Telegram"
   <$> newIORef mempty
 
 reqTg :: (FromJSON a, Show a) =>

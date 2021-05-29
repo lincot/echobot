@@ -1,7 +1,7 @@
 {-# OPTIONS -Wno-orphans #-}
 
 module Echobot.Bots.Mattermost
-  ( mmBot
+  ( mattermostBot
   )
 where
 
@@ -30,8 +30,8 @@ instance ToText UserId where
   toText = unId . unUI
   {-# INLINE toText #-}
 
-mmBot :: App (Bot Channel UserId)
-mmBot = Bot pass pass getMessagesMM sendMessageMM "Mattermost"
+mattermostBot :: App (Bot Channel UserId)
+mattermostBot = Bot pass pass getMessagesMM sendMessageMM "Mattermost"
   <$> newIORef mempty
 
 getMessagesMM :: App [(Channel, UserId, Text)]
