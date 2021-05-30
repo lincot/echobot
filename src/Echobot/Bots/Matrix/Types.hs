@@ -21,7 +21,7 @@ data SyncState = SyncState
 
 newtype Rooms = Rooms
   { joinedRooms :: HML.HashMap Text JoinedRoom
-  } deriving (Show, Generic)
+  } deriving stock Show
 
 instance FromJSON Rooms where
   parseJSON (Object v) = Rooms
@@ -30,7 +30,8 @@ instance FromJSON Rooms where
 
 newtype JoinedRoom = JoinedRoom
   { timeline :: Timeline
-  } deriving (Show, Generic, FromJSON)
+  } deriving stock (Show, Generic)
+    deriving anyclass FromJSON
 
 data Timeline = Timeline
   { events     :: [RoomEvent]
@@ -43,7 +44,7 @@ data RoomEvent = RoomEvent
   , eventType :: Text
   , event_id  :: Text
   , sender    :: Text
-  } deriving (Show, Generic)
+  } deriving Show
 
 instance FromJSON RoomEvent where
   parseJSON (Object v) = RoomEvent
@@ -62,7 +63,7 @@ data EventResponse
   = NoResponse
   | ResponseSuccess { eventId :: Text }
   | ResponseFailure { errcode :: Text, responseError :: Text }
-  deriving (Show, Generic)
+  deriving Show
 
 instance FromJSON EventResponse where
   parseJSON (Object o) = if HML.member "event_id" o

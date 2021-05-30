@@ -31,7 +31,7 @@ data TgMessage = TgMessage
 
 newtype TgChat = TgChat
   { chatId :: Int
-  } deriving Show
+  } deriving stock Show
 
 instance FromJSON TgChat where
   parseJSON (Object v) = TgChat
@@ -39,8 +39,8 @@ instance FromJSON TgChat where
   parseJSON _          = mzero
 
 newtype TgUser = TgUser
-  { id :: Int
-  } deriving Show
+  { userId :: Int
+  } deriving stock Show
 
 instance FromJSON TgUser where
   parseJSON (Object v) = TgUser

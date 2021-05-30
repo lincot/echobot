@@ -1,6 +1,5 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE InstanceSigs               #-}
-{-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE InstanceSigs          #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 module Echobot.App.Monad
   ( App(..)
@@ -20,8 +19,8 @@ type AppEnv = Env App
 
 newtype App a = App
   { unApp :: ReaderT AppEnv IO a
-  } deriving ( Functor, Applicative, Monad
-             , MonadReader AppEnv, MonadIO, MonadUnliftIO)
+  } deriving newtype ( Functor, Applicative, Monad
+                     , MonadReader AppEnv, MonadIO, MonadUnliftIO)
 
 instance MonadHttp App where
   handleHttpException :: Network.HTTP.Req.HttpException -> App a
