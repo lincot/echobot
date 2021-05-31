@@ -11,7 +11,7 @@ module Echobot.App.Env
   ( Env(..)
   , Has(..)
   , grab
-  , hasField'
+  , initialisedField
   )
 where
 
@@ -26,9 +26,8 @@ import           Echobot.Core.Matrix            ( Matrix )
 import           Echobot.Core.Mattermost        ( Mattermost )
 import           Echobot.Core.Telegram          ( Telegram )
 import           Echobot.Core.Xmpp              ( Xmpp )
-import           UnliftIO.Exception             ( evaluate
-                                                , try
-                                                )
+import           UnliftIO.Exception             ( try )
+import           Control.Exception              ( RecConError(..) )
 import           Control.Monad.IO.Unlift        ( MonadUnliftIO )
 
 data Env (m :: Type -> Type) = Env
@@ -67,13 +66,13 @@ grab :: forall field env m . (MonadReader env m, Has field env) => m field
 grab = asks $ obtain @field
 {-# INLINE grab #-}
 
-hasField'
+initialisedField
   :: forall field env m
    . (MonadReader env m, Has field env, MonadUnliftIO m)
   => m Bool
-hasField' = do
+initialisedField = do
   f   <- grab @field
-  eef <- try $ evaluate f
+  eef <- try $ evaluateWHNF f
   case eef of
-    Left (SomeException _) -> return False
-    _                      -> return True
+    Left RecConError {} -> return False
+    _                   -> return True

@@ -11,9 +11,9 @@ import           Colog                          ( filterBySeverity
                                                 , msgSeverity
                                                 , richMessageAction
                                                 )
-import           Data.List                      ( foldl1 )
+import           Data.List                      ( foldr1 )
 import           Echobot.App.Env                ( Env(..)
-                                                , hasField'
+                                                , initialisedField
                                                 )
 import           Echobot.App.Monad              ( AppEnv
                                                 , runApp
@@ -120,11 +120,11 @@ addXmpp Config {..} env = do
 
 runBots :: AppEnv -> IO ()
 runBots env = runApp env $ do
-  i  <- hasField' @Irc
-  m  <- hasField' @Matrix
-  mm <- hasField' @Mattermost
-  tg <- hasField' @Telegram
-  x  <- hasField' @Xmpp
+  i  <- initialisedField @Irc
+  m  <- initialisedField @Matrix
+  mm <- initialisedField @Mattermost
+  tg <- initialisedField @Telegram
+  x  <- initialisedField @Xmpp
   let actions = catMaybes
         [ if i  then Just $ botRunner =<< ircBot        else Nothing
         , if m  then Just $ botRunner =<< matrixBot     else Nothing
@@ -132,7 +132,7 @@ runBots env = runApp env $ do
         , if tg then Just $ botRunner =<< telegramBot   else Nothing
         , if x  then Just $ botRunner =<< xmppBot       else Nothing
         ]
-  runConcurrently $ foldl1 (*>) $ Concurrently <$> actions
+  runConcurrently $ foldr1 (*>) $ Concurrently <$> actions
 
 main :: IO ()
 main = loadConfig >>= mkAppEnv >>= runBots

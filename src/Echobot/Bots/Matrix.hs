@@ -74,7 +74,7 @@ sendMessageM (roomId, msgId) msg = do
   rb <- responseBody <$> req PUT url reqBody jsonResponse params
   log D $ "[Matrix] got:\n" <> show rb
   case parseEither parseJSON rb of
-    Right (ResponseSuccess _  ) -> pass
+    Right ResponseSuccess {}    -> pass
     Right (ResponseFailure _ e) -> again e
     Right NoResponse            -> again ""
     Left  e                     -> again $ toText e
