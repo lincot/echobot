@@ -11,7 +11,7 @@ import           Colog                          ( pattern D
                                                 )
 import qualified Data.Text                     as T
 import           Data.Text.IO                   ( hGetLine
-                                                , hPutStr
+                                                , hPutStrLn
                                                 )
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
@@ -28,26 +28,27 @@ writeIrc cmd args = do
   irc <- grab
   let line = cmd <> " " <> args
   log D $ "[IRC] writing:\n" <> line
-  liftIO $ hPutStr (ircSocket irc) (line <> "\n")
+  liftIO $ hPutStrLn (ircSocket irc) line
 
 startIrc :: App ()
 startIrc = do
   irc <- grab
   let nick = ircNick irc
   writeIrc "NICK" nick
-  writeIrc "USER" (nick <> " 0 * :" <> ircName irc)
-  writeIrc "JOIN" (ircChan irc)
+  writeIrc "USER" $ nick <> " 0 * :" <> ircName irc
+  writeIrc "JOIN" $ ircChan irc
   log I "[IRC] connected to channel"
 
 disableIrc :: App ()
 disableIrc = do
   irc <- grab
-  hClose (ircSocket irc)
+  log I "[IRC] closing handle"
+  hClose $ ircSocket irc
 
 getMessagesIrc :: App [(Text, Text, Text)]
 getMessagesIrc = do
   irc  <- grab
-  line <- liftIO $ hGetLine (ircSocket irc)
+  line <- liftIO $ hGetLine $ ircSocket irc
   log D $ "[IRC] reading:\n" <> line
   let (src, cmd, _, msg) = parseLine line
   case cmd of
@@ -61,14 +62,14 @@ getMessagesIrc = do
 
 sendMessageIrc :: Text -> Text -> App ()
 sendMessageIrc chan msg =
-  mapM_ (writeIrc "PRIVMSG" . ((chan <> " :") <>)) (lines msg)
+  mapM_ (writeIrc "PRIVMSG" . ((chan <> " :") <>)) $ lines msg
 
 parseLine :: Text -> (Text, Text, Text, Text)
 parseLine (T.stripPrefix "PING " -> Just suf) = ("", "PING", "", T.init suf)
 parseLine line = (src, cmd, target, msg)
  where
   (src   , xs) = T.break p line
-  (cmd   , ys) = T.break p (T.tail xs)
-  (target, ms) = T.break p (T.tail ys)
+  (cmd   , ys) = T.break p $ T.tail xs
+  (target, ms) = T.break p $ T.tail ys
   msg          = T.tail . T.tail . T.init $ ms
   p            = (== ' ')
