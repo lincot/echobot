@@ -3,7 +3,6 @@
 {-# LANGUAGE InstanceSigs          #-}
 {-# LANGUAGE KindSignatures        #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE TypeApplications      #-}
 
@@ -73,6 +72,6 @@ initialisedField
 initialisedField = do
   f   <- grab @field
   eef <- try $ evaluateWHNF f
-  case eef of
-    Left RecConError {} -> return False
-    _                   -> return True
+  pure $ case eef of
+    Left RecConError {} -> False
+    _                   -> True

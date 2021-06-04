@@ -42,7 +42,7 @@ sync = do
   rb <- responseBody <$> req GET url NoReqBody jsonResponse params
   log D $ "[Matrix] got:\n" <> show rb
   writeIORef (mSince matrix) $ Just $ next_batch rb
-  return $ rooms rb
+  pure $ rooms rb
 
 getMessagesM :: App [((Text, Text), Text, Text)]
 getMessagesM = do
@@ -62,7 +62,7 @@ getMessagesM = do
       f ((roomId, eId), sender', Just (String msg)) =
         Just ((roomId, eId), sender', msg)
       f _ = Nothing
-  return $ catMaybes $ f <$> b
+  pure $ catMaybes $ f <$> b
 
 sendMessageM :: (Text, Text) -> Text -> App ()
 sendMessageM (roomId, msgId) msg = do

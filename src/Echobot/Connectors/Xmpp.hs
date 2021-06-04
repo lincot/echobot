@@ -13,5 +13,5 @@ xmppConnect :: String -> Text -> Text -> IO Session
 xmppConnect host nick pswd = do
   ees <- session host (Just (const [scramSha1 nick Nothing pswd], Nothing)) def
   case ees of
-    Right s -> return s
+    Right s -> pure s
     Left  e -> error $ "[XMPP] " <> show e

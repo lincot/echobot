@@ -96,7 +96,7 @@ getMessages' bot = do
   mapM_
     (\(_, u, t) -> log' bot I $ "received message:\n" <> toText u <> ": " <> t)
     msgs
-  return msgs
+  pure msgs
 
 log' :: WithLog env (Msg sev) m => Bot c u -> sev -> Text -> m ()
 log' bot sev = log sev . (("[" <> botName bot <> "] ") <>)

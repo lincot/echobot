@@ -38,23 +38,23 @@ getMessagesMM :: App [(Channel, UserId, Text)]
 getMessagesMM = do
   mm    <- grab
   teams <- liftIO $ mmGetUsersTeams UserMe (mmSession mm)
-  (return . concat =<<) $ forM teams $ \team -> do
+  (pure . concat =<<) $ forM teams $ \team -> do
     chans <- liftIO $ mmGetChannelsForUser UserMe (getId team) (mmSession mm)
-    (return . concat =<<) $ forM chans $ \chan -> do
+    (pure . concat =<<) $ forM chans $ \chan -> do
       posts <- liftIO
         $ mmGetPostsForChannel (getId chan) defaultPostQuery (mmSession mm)
-      (return . catMaybes =<<)
+      (pure . catMaybes =<<)
         $ forM (reverse . toList $ postsOrder posts)
         $ \pId -> case lookup pId (postsPosts posts) of
             Nothing -> do
               log D "[Mattermost] could not find a post by PostId"
-              return Nothing
+              pure Nothing
             Just p -> case postUserId p of
               Nothing -> do
                 log D "[Mattermost] got a post without UserId"
-                return Nothing
+                pure Nothing
               Just uId ->
-                return $ Just (chan, uId, unsafeUserText . postMessage $ p)
+                pure $ Just (chan, uId, unsafeUserText . postMessage $ p)
 
 sendMessageMM :: Channel -> Text -> App ()
 sendMessageMM chan msg = do

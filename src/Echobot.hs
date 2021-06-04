@@ -57,11 +57,11 @@ mkAppEnv c@Config {..} =
     , envDflts     = cDflts
     , envMsgs      = cMsgs
     }
-  >>= (if connectIrc        cConnect then addIrc        c else return)
-  >>= (if connectMatrix     cConnect then addMatrix     c else return)
-  >>= (if connectMattermost cConnect then addMattermost c else return)
-  >>= (if connectTelegram   cConnect then addTelegram   c else return)
-  >>= (if connectXmpp       cConnect then addXmpp       c else return)
+  >>= (if connectIrc        cConnect then addIrc        c else pure)
+  >>= (if connectMatrix     cConnect then addMatrix     c else pure)
+  >>= (if connectMattermost cConnect then addMattermost c else pure)
+  >>= (if connectTelegram   cConnect then addTelegram   c else pure)
+  >>= (if connectXmpp       cConnect then addXmpp       c else pure)
 
 addIrc :: Config -> Env m -> IO (Env m)
 addIrc Config {..} env = do
@@ -70,10 +70,10 @@ addIrc Config {..} env = do
     h <- handleConnect (cIrcHost cIrc)
                        (cIrcPort cIrc)
     putTextLn "[IRC] connected"
-    return $ Irc h (cIrcChan cIrc)
-                   (cIrcNick cIrc)
-                   (cIrcName cIrc)
-  return env { envIrc = irc }
+    pure $ Irc h (cIrcChan cIrc)
+                 (cIrcNick cIrc)
+                 (cIrcName cIrc)
+  pure env { envIrc = irc }
 
 addMatrix :: Config -> Env m -> IO (Env m)
 addMatrix Config {..} env = do
@@ -81,10 +81,10 @@ addMatrix Config {..} env = do
     s <- newIORef
       $ if cMSince cMatrix == "" then Nothing else Just $ cMSince cMatrix
     putTextLn "[Matrix] ready to go"
-    return $ Matrix s (cMToken      cMatrix)
-                      (cMName       cMatrix)
-                      (cMHomeserver cMatrix)
-  return env { envMatrix = matrix }
+    pure $ Matrix s (cMToken      cMatrix)
+                    (cMName       cMatrix)
+                    (cMHomeserver cMatrix)
+  pure env { envMatrix = matrix }
 
 addMattermost :: Config -> Env m -> IO (Env m)
 addMattermost Config {..} env = do
@@ -96,16 +96,16 @@ addMattermost Config {..} env = do
                            (cMmNick cMattermost)
                            (cMmPswd cMattermost)
     putTextLn "[Mattermost] connected"
-    return $ Mattermost s
-  return env { envMattermost = mm }
+    pure $ Mattermost s
+  pure env { envMattermost = mm }
 
 addTelegram :: Config -> Env m -> IO (Env m)
 addTelegram Config {..} env = do
   tg <- do
     o <- newIORef $ cTgOffset cTelegram
     putTextLn "[Telegram] ready to go"
-    return $ Telegram o (cTgToken cTelegram)
-  return env { envTelegram = tg }
+    pure $ Telegram o (cTgToken cTelegram)
+  pure env { envTelegram = tg }
 
 addXmpp :: Config -> Env m -> IO (Env m)
 addXmpp Config {..} env = do
@@ -115,11 +115,11 @@ addXmpp Config {..} env = do
                      (cXmppNick cXmpp)
                      (cXmppPswd cXmpp)
     putTextLn "[XMPP] connected"
-    return $ Xmpp s
-  return env { envXmpp = xmpp }
+    pure $ Xmpp s
+  pure env { envXmpp = xmpp }
 
 runBots :: AppEnv -> IO ()
-runBots env = runApp env $ do
+runBots = flip runApp $ do
   i  <- initialisedField @Irc
   m  <- initialisedField @Matrix
   mm <- initialisedField @Mattermost

@@ -47,7 +47,7 @@ getMessagesXmpp = do
   message'  <- liftIO $ getMessage (xmppSession xmpp)
   case messageFrom message' of
     Just sender -> case getIM message' of
-      Just im -> return $ ("", sender, ) . bodyContent <$> imBody im
+      Just im -> pure $ ("", sender, ) . bodyContent <$> imBody im
       Nothing -> do
         log D "[XMPP] received message with no IM data"
         getMessagesXmpp

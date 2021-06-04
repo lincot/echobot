@@ -57,7 +57,7 @@ getMessagesIrc = do
       getMessagesIrc
     "PRIVMSG" -> if "/utility-bot" `T.isInfixOf` src
       then getMessagesIrc
-      else return [(ircChan irc, src, msg)]
+      else pure [(ircChan irc, src, msg)]
     _ -> getMessagesIrc
 
 sendMessageIrc :: Text -> Text -> App ()

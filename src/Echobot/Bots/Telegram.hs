@@ -41,10 +41,10 @@ reqTg token method params = do
   case parseEither parseJSON rb of
     Right (TgResponse _ (Just result)) -> do
       log D $ "[Telegram] got:\n" <> show result
-      return $ Right result
-    Right (TgResponse (Just desc) _) -> return $ Left desc
-    Right (TgResponse _ _) -> return $ Left "got nothing :O"
-    Left e -> return $ Left (toText e)
+      pure $ Right result
+    Right (TgResponse (Just desc) _) -> pure $ Left desc
+    Right (TgResponse _ _) -> pure $ Left "got nothing :O"
+    Left e -> pure $ Left $ toText e
 
 getUpdates :: App [TgUpdate]
 getUpdates = do
@@ -60,13 +60,13 @@ getUpdates = do
     Right upds -> case viaNonEmpty last upds of
       Just upd -> do
         writeIORef (tgOffset tg) $ update_id upd + 1
-        return upds
+        pure upds
       Nothing  -> getUpdates
 
 getMessagesTg :: App [(Int, Int, Text)]
 getMessagesTg = do
   upds <- getUpdates
-  return $ catMaybes $ parseUpdate <$> upds
+  pure $ catMaybes $ parseUpdate <$> upds
 
 parseUpdate :: TgUpdate -> Maybe (Int, Int, Text)
 parseUpdate = \case
