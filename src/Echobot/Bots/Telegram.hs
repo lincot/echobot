@@ -66,13 +66,10 @@ getUpdates = do
 getMessagesTg :: App [(Int, Int, Text)]
 getMessagesTg = do
   upds <- getUpdates
-  pure $ catMaybes $ parseUpdate <$> upds
-
-parseUpdate :: TgUpdate -> Maybe (Int, Int, Text)
-parseUpdate = \case
-  TgUpdate _ (Just (TgMessage (Just (TgUser usr)) (TgChat chat) (Just msg))) ->
-    Just (chat, usr, msg)
-  _ -> Nothing
+  pure
+    [ (chat, usr, msg)
+    | TgUpdate _ (Just (TgMessage (Just (TgUser usr)) (TgChat chat) (Just msg)))
+    <- upds ]
 
 sendMessageTg :: Int -> Text -> App ()
 sendMessageTg chat msg = do

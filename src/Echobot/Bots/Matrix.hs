@@ -58,10 +58,9 @@ getMessagesM = do
        (roomId, event_id event), sender event, HML.lookup "body" (content event)
                                                      )) <$> events'
                    ) <$> HML.toList a
-      f ((roomId, eId), sender', Just (String msg)) =
-        Just ((roomId, eId), sender', msg)
-      f _ = Nothing
-  pure $ catMaybes $ f <$> b
+  pure [ ((roomId, eId), sender', msg)
+       | ((roomId, eId), sender', Just (String msg))
+       <- b ]
 
 sendMessageM :: (Text, Text) -> Text -> App ()
 sendMessageM (roomId, msgId) msg = do

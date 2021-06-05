@@ -37,15 +37,15 @@ mattermostBot =
 getMessagesMM :: App [(Channel, UserId, Text)]
 getMessagesMM = do
   mm    <- grab
-  teams <- liftIO $ mmGetUsersTeams UserMe (mmSession mm)
+  teams <- liftIO $ mmGetUsersTeams UserMe $ mmSession mm
   (pure . concat =<<) $ forM teams $ \team -> do
-    chans <- liftIO $ mmGetChannelsForUser UserMe (getId team) (mmSession mm)
+    chans <- liftIO $ mmGetChannelsForUser UserMe (getId team) $ mmSession mm
     (pure . concat =<<) $ forM chans $ \chan -> do
       posts <- liftIO
-        $ mmGetPostsForChannel (getId chan) defaultPostQuery (mmSession mm)
+        $ mmGetPostsForChannel (getId chan) defaultPostQuery $ mmSession mm
       (pure . catMaybes =<<)
         $ forM (reverse . toList $ postsOrder posts)
-        $ \pId -> case lookup pId (postsPosts posts) of
+        $ \pId -> case lookup pId $ postsPosts posts of
             Nothing -> do
               log D "[Mattermost] could not find a post by PostId"
               pure Nothing
@@ -65,4 +65,4 @@ sendMessageMM chan msg = do
         , rawPostFileIds   = mempty
         , rawPostRootId    = Nothing
         }
-  liftIO . void $ mmCreatePost post (mmSession mm)
+  liftIO . void $ mmCreatePost post $ mmSession mm

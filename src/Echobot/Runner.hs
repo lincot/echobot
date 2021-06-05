@@ -47,10 +47,9 @@ react bot chan src msg = do
       NormalMode              -> reactNormal      bot chan src usr msg
     Nothing -> do
       dflts <- grab
-      let
-        usr = User { userMode        = NormalMode
-                   , userRepeatCount = defaultRepeatCount dflts
-                   }
+      let usr = User { userMode        = NormalMode
+                     , userRepeatCount = defaultRepeatCount dflts
+                     }
       putUser (users bot) src usr
       reactNormal bot chan src usr msg
 
