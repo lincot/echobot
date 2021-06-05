@@ -5,15 +5,15 @@ module Echobot.Core.Matrix
 where
 
 data Matrix = Matrix
-  { mSince      :: !(IORef (Maybe Text))
-  , mToken      :: !Text
+  { mToken      :: !Text
   , mName       :: !Text
   , mHomeserver :: !Text
+  , mSince      :: !(IORef (Maybe Text))
   }
 
 data MatrixC = MatrixC
-  { cMSince      :: !Text
-  , cMToken      :: !Text
+  { cMToken      :: !Text
   , cMName       :: !Text
   , cMHomeserver :: !Text
+  , cMSince      :: !Text
   }

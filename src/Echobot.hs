@@ -37,9 +37,9 @@ import           Echobot.Core.Xmpp              ( Xmpp(..)
 import           Echobot.Config                 ( Config(..)
                                                 , loadConfig
                                                 )
-import           Echobot.Connectors.Handle      ( handleConnect )
-import           Echobot.Connectors.Xmpp        ( xmppConnect )
+import           Echobot.Connectors.Irc         ( ircConnect )
 import           Echobot.Connectors.Mattermost  ( mattermostConnect )
+import           Echobot.Connectors.Xmpp        ( xmppConnect )
 import           Echobot.Runner                 ( botRunner )
 import           Echobot.Bots.Irc               ( ircBot )
 import           Echobot.Bots.Telegram          ( telegramBot )
@@ -65,58 +65,50 @@ mkAppEnv c@Config {..} =
 
 addIrc :: Config -> Env m -> IO (Env m)
 addIrc Config {..} env = do
-  irc <- do
-    putTextLn "[IRC] connecting..."
-    h <- handleConnect (cIrcHost cIrc)
-                       (cIrcPort cIrc)
-    putTextLn "[IRC] connected"
-    pure $ Irc h (cIrcChan cIrc)
-                 (cIrcNick cIrc)
-                 (cIrcName cIrc)
-  pure env { envIrc = irc }
+  putTextLn "[IRC] connecting..."
+  h <- ircConnect (cIrcHost cIrc)
+                  (cIrcPort cIrc)
+                  (cIrcChan cIrc)
+                  (cIrcNick cIrc)
+                  (cIrcName cIrc)
+  putTextLn "[IRC] connected"
+  pure env { envIrc = Irc h (cIrcChan cIrc) }
 
 addMatrix :: Config -> Env m -> IO (Env m)
 addMatrix Config {..} env = do
-  matrix <- do
-    s <- newIORef
-      $ if cMSince cMatrix == "" then Nothing else Just $ cMSince cMatrix
-    putTextLn "[Matrix] ready to go"
-    pure $ Matrix s (cMToken      cMatrix)
-                    (cMName       cMatrix)
-                    (cMHomeserver cMatrix)
-  pure env { envMatrix = matrix }
+  s <- newIORef
+    $ if cMSince cMatrix == "" then Nothing else Just $ cMSince cMatrix
+  putTextLn "[Matrix] ready to go"
+  pure env
+    { envMatrix = Matrix (cMToken      cMatrix)
+                         (cMName       cMatrix)
+                         (cMHomeserver cMatrix)
+                         s
+    }
 
 addMattermost :: Config -> Env m -> IO (Env m)
 addMattermost Config {..} env = do
-  mm <- do
-    putTextLn "[Mattermost] connecting..."
-    s <- mattermostConnect (cMmHost cMattermost)
-                           (cMmPort cMattermost)
-                           (cMmPath cMattermost)
-                           (cMmNick cMattermost)
-                           (cMmPswd cMattermost)
-    putTextLn "[Mattermost] connected"
-    pure $ Mattermost s
-  pure env { envMattermost = mm }
+  putTextLn "[Mattermost] connecting..."
+  s <- mattermostConnect (cMmHost cMattermost)
+                         (cMmPort cMattermost)
+                         (cMmPath cMattermost)
+                         (cMmNick cMattermost)
+                         (cMmPswd cMattermost)
+  putTextLn "[Mattermost] connected"
+  pure env { envMattermost = Mattermost s }
 
 addTelegram :: Config -> Env m -> IO (Env m)
 addTelegram Config {..} env = do
-  tg <- do
-    o <- newIORef $ cTgOffset cTelegram
-    putTextLn "[Telegram] ready to go"
-    pure $ Telegram o (cTgToken cTelegram)
-  pure env { envTelegram = tg }
+  o <- newIORef $ cTgOffset cTelegram
+  putTextLn "[Telegram] ready to go"
+  pure env { envTelegram = Telegram (cTgToken cTelegram) o }
 
 addXmpp :: Config -> Env m -> IO (Env m)
 addXmpp Config {..} env = do
-  xmpp <- do
-    putTextLn "[XMPP] connecting..."
-    s <- xmppConnect (cXmppHost cXmpp)
-                     (cXmppNick cXmpp)
-                     (cXmppPswd cXmpp)
-    putTextLn "[XMPP] connected"
-    pure $ Xmpp s
-  pure env { envXmpp = xmpp }
+  putTextLn "[XMPP] connecting..."
+  s <- xmppConnect (cXmppHost cXmpp) (cXmppNick cXmpp) (cXmppPswd cXmpp)
+  putTextLn "[XMPP] connected"
+  pure env { envXmpp = Xmpp s }
 
 runBots :: AppEnv -> IO ()
 runBots = flip runApp $ do
@@ -125,12 +117,15 @@ runBots = flip runApp $ do
   mm <- initialisedField @Mattermost
   tg <- initialisedField @Telegram
   x  <- initialisedField @Xmpp
-  let actions = catMaybes
-        [ if i  then Just $ botRunner =<< ircBot        else Nothing
-        , if m  then Just $ botRunner =<< matrixBot     else Nothing
-        , if mm then Just $ botRunner =<< mattermostBot else Nothing
-        , if tg then Just $ botRunner =<< telegramBot   else Nothing
-        , if x  then Just $ botRunner =<< xmppBot       else Nothing
+  let actions =
+        [ a
+        | (True, a) <-
+          [ (i , botRunner =<< ircBot)
+          , (m , botRunner =<< matrixBot)
+          , (mm, botRunner =<< mattermostBot)
+          , (tg, botRunner =<< telegramBot)
+          , (x , botRunner =<< xmppBot)
+          ]
         ]
   runConcurrently $ foldr1 (*>) $ Concurrently <$> actions
 

@@ -31,8 +31,8 @@ instance ToText UserId where
   {-# INLINE toText #-}
 
 mattermostBot :: App (Bot Channel UserId)
-mattermostBot = Bot pass pass getMessagesMM sendMessageMM "Mattermost"
-  <$> newIORef mempty
+mattermostBot =
+  Bot getMessagesMM sendMessageMM pass "Mattermost" <$> newIORef mempty
 
 getMessagesMM :: App [(Channel, UserId, Text)]
 getMessagesMM = do

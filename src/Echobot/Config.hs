@@ -60,10 +60,10 @@ ircCodec = IrcC
 
 matrixCodec :: TomlCodec MatrixC
 matrixCodec = MatrixC
-  <$> Toml.text "since"      .= cMSince
-  <*> Toml.text "token"      .= cMToken
+  <$> Toml.text "token"      .= cMToken
   <*> Toml.text "name"       .= cMName
   <*> Toml.text "homeserver" .= cMHomeserver
+  <*> Toml.text "since"      .= cMSince
 
 mmCodec :: TomlCodec MattermostC
 mmCodec = MattermostC
@@ -75,8 +75,8 @@ mmCodec = MattermostC
 
 tgCodec :: TomlCodec TelegramC
 tgCodec = TelegramC
-  <$> Toml.int  "offset" .= cTgOffset
-  <*> Toml.text "token"  .= cTgToken
+  <$> Toml.text "token"  .= cTgToken
+  <*> Toml.int  "offset" .= cTgOffset
 
 xmppCodec :: TomlCodec XmppC
 xmppCodec = XmppC

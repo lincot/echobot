@@ -27,8 +27,7 @@ import           Echobot.Core.Matrix            ( Matrix(..) )
 import           Network.HTTP.Req
 
 matrixBot :: App (Bot (Text, Text) Text)
-matrixBot = Bot pass pass getMessagesM sendMessageM "Matrix"
-  <$> newIORef mempty
+matrixBot = Bot getMessagesM sendMessageM pass "Matrix" <$> newIORef mempty
 
 sync :: App Rooms
 sync = do

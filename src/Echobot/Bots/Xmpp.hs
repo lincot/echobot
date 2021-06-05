@@ -38,8 +38,7 @@ instance Hashable Jid where
   {-# INLINE hashWithSalt #-}
 
 xmppBot :: App (Bot Text Jid)
-xmppBot = Bot pass pass getMessagesXmpp sendMessageXmpp "XMPP"
-  <$> newIORef mempty
+xmppBot = Bot getMessagesXmpp sendMessageXmpp pass "XMPP" <$> newIORef mempty
 
 getMessagesXmpp :: App [(Text, Jid, Text)]
 getMessagesXmpp = do

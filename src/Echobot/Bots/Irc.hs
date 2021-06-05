@@ -20,8 +20,7 @@ import           Echobot.Core.Irc               ( Irc(..) )
 import           UnliftIO.IO                    ( hClose )
 
 ircBot :: App (Bot Text Text)
-ircBot = Bot startIrc disableIrc getMessagesIrc sendMessageIrc "IRC"
-  <$> newIORef mempty
+ircBot = Bot getMessagesIrc sendMessageIrc disableIrc "IRC" <$> newIORef mempty
 
 writeIrc :: Text -> Text -> App ()
 writeIrc cmd args = do
@@ -29,21 +28,6 @@ writeIrc cmd args = do
   let line = cmd <> " " <> args
   log D $ "[IRC] writing:\n" <> line
   liftIO $ hPutStrLn (ircSocket irc) line
-
-startIrc :: App ()
-startIrc = do
-  irc <- grab
-  let nick = ircNick irc
-  writeIrc "NICK" nick
-  writeIrc "USER" $ nick <> " 0 * :" <> ircName irc
-  writeIrc "JOIN" $ ircChan irc
-  log I "[IRC] connected to channel"
-
-disableIrc :: App ()
-disableIrc = do
-  irc <- grab
-  log I "[IRC] closing handle"
-  hClose $ ircSocket irc
 
 getMessagesIrc :: App [(Text, Text, Text)]
 getMessagesIrc = do
@@ -63,6 +47,12 @@ getMessagesIrc = do
 sendMessageIrc :: Text -> Text -> App ()
 sendMessageIrc chan msg =
   mapM_ (writeIrc "PRIVMSG" . ((chan <> " :") <>)) $ lines msg
+
+disableIrc :: App ()
+disableIrc = do
+  irc <- grab
+  log I "[IRC] closing handle"
+  hClose $ ircSocket irc
 
 parseLine :: Text -> (Text, Text, Text, Text)
 parseLine (T.stripPrefix "PING " -> Just suf) = ("", "PING", "", T.init suf)

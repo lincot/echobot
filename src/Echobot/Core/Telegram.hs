@@ -5,11 +5,11 @@ module Echobot.Core.Telegram
 where
 
 data Telegram = Telegram
-  { tgOffset :: !(IORef Int)
-  , tgToken  :: !Text
+  { tgToken  :: !Text
+  , tgOffset :: !(IORef Int)
   }
 
 data TelegramC = TelegramC
-  { cTgOffset :: !Int
-  , cTgToken  :: !Text
+  { cTgToken  :: !Text
+  , cTgOffset :: !Int
   }

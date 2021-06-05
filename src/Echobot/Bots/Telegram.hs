@@ -30,8 +30,8 @@ instance ToText Int where
   {-# INLINE toText #-}
 
 telegramBot :: App (Bot Int Int)
-telegramBot = Bot pass pass getMessagesTg sendMessageTg "Telegram"
-  <$> newIORef mempty
+telegramBot =
+  Bot getMessagesTg sendMessageTg pass "Telegram" <$> newIORef mempty
 
 reqTg :: (FromJSON a, Show a) =>
   Text -> Text -> Network.HTTP.Req.Option 'Https -> App (Either Text a)

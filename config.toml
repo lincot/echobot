@@ -15,13 +15,13 @@ log.severity = "Debug"
   name = "echobot"
 
 [Matrix]
+  token = ""
+  name = "@example:matrix.org"
+  homeserver = "matrix.org"
   # "since" param to make the first sync
   # can be next_batch of a previous sync
   # if empty, full sync will be made
   since = ""
-  token = ""
-  name = "@example:matrix.org"
-  homeserver = "matrix.org"
 
 [Mattermost]
   host = ""
@@ -31,8 +31,9 @@ log.severity = "Debug"
   password = ""
 
 [Telegram]
-  offset = 0
   token = ""
+  # 0 to get only recent messages
+  offset = 0
 
 [XMPP]
   host = "test.pontarius.org"

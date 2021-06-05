@@ -25,9 +25,9 @@ import           Echobot.Core.Matrix            ( Matrix )
 import           Echobot.Core.Mattermost        ( Mattermost )
 import           Echobot.Core.Telegram          ( Telegram )
 import           Echobot.Core.Xmpp              ( Xmpp )
-import           UnliftIO.Exception             ( try )
 import           Control.Exception              ( RecConError(..) )
 import           Control.Monad.IO.Unlift        ( MonadUnliftIO )
+import           UnliftIO.Exception             ( try )
 
 data Env (m :: Type -> Type) = Env
   { envLogAction  :: !(LogAction m Message)

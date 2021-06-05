@@ -7,8 +7,6 @@ where
 data Irc = Irc
   { ircSocket :: !Handle
   , ircChan   :: !Text
-  , ircNick   :: !Text
-  , ircName   :: !Text
   }
 
 data IrcC = IrcC

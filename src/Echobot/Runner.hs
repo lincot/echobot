@@ -23,13 +23,13 @@ import           Echobot.Db                     ( getUser
                                                 , putUser
                                                 )
 import           Text.Printf                    ( printf )
-import           UnliftIO.Exception             ( finally )
+import           UnliftIO.Exception             ( onException )
 
 botRunner :: (Eq u, Hashable u, ToText u) =>
   Bot c u -> App ()
 botRunner bot = do
   log' bot I "bot started"
-  finally (startBot bot >> runBot bot) $ disableBot bot
+  onException (runBot bot) $ disableBot bot
 
 runBot :: (Eq u, Hashable u, ToText u) =>
   Bot c u -> App ()

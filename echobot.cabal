@@ -66,6 +66,7 @@ library
                        Echobot.Bots.Xmpp
                        Echobot.Config
                        Echobot.Connectors.Handle
+                       Echobot.Connectors.Irc
                        Echobot.Connectors.Mattermost
                        Echobot.Connectors.Xmpp
                        Echobot.Core.Bot
