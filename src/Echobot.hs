@@ -51,17 +51,25 @@ import           UnliftIO.Async                 ( Concurrently(..)
                                                 )
 
 mkAppEnv :: Config -> IO AppEnv
-mkAppEnv c@Config {..} =
+mkAppEnv conf@Config {..} =
   pure Env
-    { envLogAction = filterBySeverity cLogSeverity msgSeverity richMessageAction
-    , envDflts     = cDflts
-    , envMsgs      = cMsgs
-    }
-  >>= (if connectIrc        cConnect then addIrc        c else pure)
-  >>= (if connectMatrix     cConnect then addMatrix     c else pure)
-  >>= (if connectMattermost cConnect then addMattermost c else pure)
-  >>= (if connectTelegram   cConnect then addTelegram   c else pure)
-  >>= (if connectXmpp       cConnect then addXmpp       c else pure)
+      { envLogAction = filterBySeverity cLogSeverity
+                                        msgSeverity
+                                        richMessageAction
+      , envDflts     = cDflts
+      , envMsgs      = cMsgs
+      }
+    >>= foldr1
+          (>=>)
+          ((`snd` conf) <$> filter
+            (`fst` cConnect)
+            [ (connectIrc       , addIrc)
+            , (connectMatrix    , addMatrix)
+            , (connectMattermost, addMattermost)
+            , (connectTelegram  , addTelegram)
+            , (connectXmpp      , addXmpp)
+            ]
+          )
 
 addIrc :: Config -> Env m -> IO (Env m)
 addIrc Config {..} env = do

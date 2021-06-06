@@ -26,9 +26,7 @@ import           Network.Mattermost.Types       ( Channel
                                                 , UserId(..)
                                                 )
 
-instance ToText UserId where
-  toText = unId . unUI
-  {-# INLINE toText #-}
+deriving via Text instance ToText UserId
 
 mattermostBot :: App (Bot Channel UserId)
 mattermostBot =

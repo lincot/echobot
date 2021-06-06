@@ -46,10 +46,12 @@ common common-options
   default-extensions: DataKinds
                     , DeriveGeneric
                     , DerivingStrategies
+                    , DerivingVia
                     , GeneralizedNewtypeDeriving
+                    , LambdaCase
                     , OverloadedStrings
                     , PatternSynonyms
-                    , LambdaCase
+                    , StandaloneDeriving
 
 library
   import:              common-options
