@@ -1,14 +1,12 @@
 module Echobot.Core.Xmpp
-  ( Xmpp(..)
+  ( Xmpp
   , XmppC(..)
   )
 where
 
 import           Network.Xmpp                   ( Session )
 
-newtype Xmpp = Xmpp
-  { xmppSession :: Session
-  }
+type Xmpp = Session
 
 data XmppC = XmppC
   { cXmppHost :: !String

@@ -28,10 +28,10 @@ import           Echobot.Core.Telegram          ( Telegram(..)
 import           Echobot.Core.Matrix            ( Matrix(..)
                                                 , MatrixC(..)
                                                 )
-import           Echobot.Core.Mattermost        ( Mattermost(..)
+import           Echobot.Core.Mattermost        ( Mattermost
                                                 , MattermostC(..)
                                                 )
-import           Echobot.Core.Xmpp              ( Xmpp(..)
+import           Echobot.Core.Xmpp              ( Xmpp
                                                 , XmppC(..)
                                                 )
 import           Echobot.Config                 ( Config(..)
@@ -84,26 +84,26 @@ addIrc Config {..} env = do
 
 addMatrix :: Config -> Env m -> IO (Env m)
 addMatrix Config {..} env = do
-  s <- newIORef
+  since <- newIORef
     $ if cMSince cMatrix == "" then Nothing else Just $ cMSince cMatrix
   putTextLn "[Matrix] ready to go"
   pure env
     { envMatrix = Matrix (cMToken      cMatrix)
                          (cMName       cMatrix)
                          (cMHomeserver cMatrix)
-                         s
+                         since
     }
 
 addMattermost :: Config -> Env m -> IO (Env m)
 addMattermost Config {..} env = do
   putTextLn "[Mattermost] connecting..."
-  s <- mattermostConnect (cMmHost cMattermost)
+  mm <- mattermostConnect (cMmHost cMattermost)
                          (cMmPort cMattermost)
                          (cMmPath cMattermost)
                          (cMmNick cMattermost)
                          (cMmPswd cMattermost)
   putTextLn "[Mattermost] connected"
-  pure env { envMattermost = Mattermost s }
+  pure env { envMattermost = mm }
 
 addTelegram :: Config -> Env m -> IO (Env m)
 addTelegram Config {..} env = do
@@ -114,9 +114,9 @@ addTelegram Config {..} env = do
 addXmpp :: Config -> Env m -> IO (Env m)
 addXmpp Config {..} env = do
   putTextLn "[XMPP] connecting..."
-  s <- xmppConnect (cXmppHost cXmpp) (cXmppNick cXmpp) (cXmppPswd cXmpp)
+  xmpp <- xmppConnect (cXmppHost cXmpp) (cXmppNick cXmpp) (cXmppPswd cXmpp)
   putTextLn "[XMPP] connected"
-  pure env { envXmpp = Xmpp s }
+  pure env { envXmpp = xmpp }
 
 runBots :: AppEnv -> IO ()
 runBots = flip runApp $ do

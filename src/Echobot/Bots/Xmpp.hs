@@ -27,14 +27,13 @@ import qualified Network.Xmpp                  as Xmpp
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
 import           Echobot.Core.Bot               ( Bot(..) )
-import           Echobot.Core.Xmpp              ( Xmpp(..) )
 
 instance ToText Jid where
   toText = jidToText
   {-# INLINE toText #-}
 
 instance Hashable Jid where
-  hashWithSalt salt j = hashWithSalt salt . toText $ j
+  hashWithSalt salt = hashWithSalt salt . toText
   {-# INLINE hashWithSalt #-}
 
 xmppBot :: App (Bot Text Jid)
@@ -43,7 +42,7 @@ xmppBot = Bot getMessagesXmpp sendMessageXmpp pass "XMPP" <$> newIORef mempty
 getMessagesXmpp :: App [(Text, Jid, Text)]
 getMessagesXmpp = do
   xmpp <- grab
-  message'  <- liftIO $ getMessage (xmppSession xmpp)
+  message'  <- liftIO $ getMessage xmpp
   case messageFrom message' of
     Just sender -> case getIM message' of
       Just im -> pure $ ("", sender, ) . bodyContent <$> imBody im
@@ -59,7 +58,7 @@ sendMessageXmpp _ msg = do
   xmpp <- grab
   let message' = withIM message { messageTo = Nothing }
                         instantMessage { imBody = [MessageBody Nothing msg] }
-  me <- liftIO $ Xmpp.sendMessage message' (xmppSession xmpp)
+  me <- liftIO $ Xmpp.sendMessage message' xmpp
   case me of
     Left e -> log E $ "[XMPP] " <> show e
     _      -> pass

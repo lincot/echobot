@@ -12,7 +12,6 @@ import           Colog                          ( pattern D
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
 import           Echobot.Core.Bot               ( Bot(..) )
-import           Echobot.Core.Mattermost        ( Mattermost(..) )
 import           Network.Mattermost.Endpoints
 import           Network.Mattermost.Types       ( Channel
                                                 , UserId
@@ -35,12 +34,12 @@ mattermostBot =
 getMessagesMM :: App [(Channel, UserId, Text)]
 getMessagesMM = do
   mm    <- grab
-  teams <- liftIO $ mmGetUsersTeams UserMe $ mmSession mm
+  teams <- liftIO $ mmGetUsersTeams UserMe mm
   (pure . concat =<<) $ forM teams $ \team -> do
-    chans <- liftIO $ mmGetChannelsForUser UserMe (getId team) $ mmSession mm
+    chans <- liftIO $ mmGetChannelsForUser UserMe (getId team) mm
     (pure . concat =<<) $ forM chans $ \chan -> do
       posts <- liftIO
-        $ mmGetPostsForChannel (getId chan) defaultPostQuery $ mmSession mm
+        $ mmGetPostsForChannel (getId chan) defaultPostQuery mm
       (pure . catMaybes =<<)
         $ forM (reverse . toList $ postsOrder posts)
         $ \pId -> case lookup pId $ postsPosts posts of
@@ -63,4 +62,4 @@ sendMessageMM chan msg = do
         , rawPostFileIds   = mempty
         , rawPostRootId    = Nothing
         }
-  liftIO . void $ mmCreatePost post $ mmSession mm
+  liftIO $ void $ mmCreatePost post mm

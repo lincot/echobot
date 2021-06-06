@@ -1,14 +1,12 @@
 module Echobot.Core.Mattermost
-  ( Mattermost(..)
+  ( Mattermost
   , MattermostC(..)
   )
 where
 
 import           Network.Mattermost.Types       ( Session )
 
-newtype Mattermost = Mattermost
-  { mmSession :: Session
-  }
+type Mattermost = Session
 
 data MattermostC = MattermostC
   { cMmHost :: !Text
