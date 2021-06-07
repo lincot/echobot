@@ -51,7 +51,7 @@ getMessagesMM = do
                 log D "[Mattermost] got a post without UserId"
                 pure Nothing
               Just uId ->
-                pure $ Just (chan, uId, unsafeUserText . postMessage $ p)
+                pure $ Just (chan, uId, unsafeUserText $ postMessage p)
 
 sendMessageMM :: Channel -> Text -> App ()
 sendMessageMM chan msg = do

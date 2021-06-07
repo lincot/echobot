@@ -61,8 +61,7 @@ mkAppEnv conf@Config {..} =
       }
     >>= foldr1
           (>=>)
-          ((`snd` conf) <$> filter
-            (`fst` cConnect)
+          ((`snd` conf) <$> filter (`fst` cConnect)
             [ (connectIrc       , addIrc)
             , (connectMatrix    , addMatrix)
             , (connectMattermost, addMattermost)
@@ -98,10 +97,10 @@ addMattermost :: Config -> Env m -> IO (Env m)
 addMattermost Config {..} env = do
   putTextLn "[Mattermost] connecting..."
   mm <- mattermostConnect (cMmHost cMattermost)
-                         (cMmPort cMattermost)
-                         (cMmPath cMattermost)
-                         (cMmNick cMattermost)
-                         (cMmPswd cMattermost)
+                          (cMmPort cMattermost)
+                          (cMmPath cMattermost)
+                          (cMmNick cMattermost)
+                          (cMmPswd cMattermost)
   putTextLn "[Mattermost] connected"
   pure env { envMattermost = mm }
 
@@ -125,15 +124,12 @@ runBots = flip runApp $ do
   mm <- initialisedField @Mattermost
   tg <- initialisedField @Telegram
   x  <- initialisedField @Xmpp
-  let actions =
-        [ a
-        | (True, a) <-
-          [ (i , botRunner =<< ircBot)
-          , (m , botRunner =<< matrixBot)
-          , (mm, botRunner =<< mattermostBot)
-          , (tg, botRunner =<< telegramBot)
-          , (x , botRunner =<< xmppBot)
-          ]
+  let actions = snd <$> filter fst
+        [ (i , botRunner =<< ircBot)
+        , (m , botRunner =<< matrixBot)
+        , (mm, botRunner =<< mattermostBot)
+        , (tg, botRunner =<< telegramBot)
+        , (x , botRunner =<< xmppBot)
         ]
   runConcurrently $ foldr1 (*>) $ Concurrently <$> actions
 
