@@ -15,8 +15,8 @@ import           Data.Text.IO                   ( hGetLine
                                                 )
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
-import           Echobot.Core.Bot               ( Bot(..) )
-import           Echobot.Core.Irc               ( Irc(..) )
+import           Echobot.Types.Bot              ( Bot(..) )
+import           Echobot.Types.Irc              ( Irc(..) )
 import           UnliftIO.IO                    ( hClose )
 
 ircBot :: App (Bot Text Text)

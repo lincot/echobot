@@ -26,7 +26,7 @@ import qualified Network.Xmpp                  as Xmpp
                                                 ( sendMessage )
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
-import           Echobot.Core.Bot               ( Bot(..) )
+import           Echobot.Types.Bot              ( Bot(..) )
 
 instance ToText Jid where
   toText = jidToText

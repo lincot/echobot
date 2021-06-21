@@ -8,7 +8,7 @@ log.severity = "Debug"
   XMPP       = false
 
 [IRC]
-  host = "irc.freenode.org"
+  host = "irc.libera.chat"
   port = "6667"
   chan = "#tutbot-testing"
   nick = "echobot"

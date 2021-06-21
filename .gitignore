@@ -1,36 +1,40 @@
-# Haskell
+### Haskell
+.hlint.yaml
 dist
 dist-*
 cabal-dev
 *.o
 *.hi
-*.hie
 *.chi
 *.chs.h
 *.dyn_o
 *.dyn_hi
-.hpc
-.hsenv
-.cabal-sandbox/
-cabal.sandbox.config
 *.prof
 *.aux
 *.hp
 *.eventlog
-.stack-work/
+.virtualenv
+.hsenv
+.hpc
+.cabal-sandbox/
+cabal.sandbox.config
+cabal.config
 cabal.project.local
-cabal.project.local~
-.HTF/
 .ghc.environment.*
-.hlint.yaml
+.HTF/
+# Stack
+.stack-work/
+stack.yaml.lock
+# Nix
+result
 
-# VS Code
+### VS Code
 .vscode/
 .history/
 *.code-workspace
 
-# Vim
-## Swap
+### Vim
+# Swap
 [._]*.s[a-v][a-z]
 !*.svg  # comment out if you don't need vector files
 [._]*.sw[a-p]
@@ -38,14 +42,14 @@ cabal.project.local~
 [._]ss[a-gi-z]
 [._]sw[a-p]
 
-## Session
+# Session
 Session.vim
 Sessionx.vim
 
-## Temporary
+# Temporary
 .netrwhist
 *~
-## Auto-generated tag files
+# Auto-generated tag files
 tags
-## Persistent undo
+# Persistent undo
 [._]*.un~

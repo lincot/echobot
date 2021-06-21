@@ -11,7 +11,7 @@ import           Colog                          ( pattern D
                                                 )
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
-import           Echobot.Core.Bot               ( Bot(..) )
+import           Echobot.Types.Bot              ( Bot(..) )
 import           Network.Mattermost.Endpoints
 import           Network.Mattermost.Types       ( ChannelId
                                                 , UserId

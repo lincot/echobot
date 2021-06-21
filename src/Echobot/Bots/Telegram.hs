@@ -21,8 +21,8 @@ import           Echobot.Bots.Telegram.Types    ( TgResponse(TgResponse)
                                                 , TgChat(TgChat)
                                                 , TgUser(TgUser)
                                                 )
-import           Echobot.Core.Bot               ( Bot(..) )
-import           Echobot.Core.Telegram          ( Telegram(..) )
+import           Echobot.Types.Bot              ( Bot(..) )
+import           Echobot.Types.Telegram         ( Telegram(..) )
 import           Network.HTTP.Req
 
 instance ToText Int where

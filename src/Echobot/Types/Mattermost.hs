@@ -1,4 +1,4 @@
-module Echobot.Core.Mattermost
+module Echobot.Types.Mattermost
   ( Mattermost
   , MattermostC(..)
   )
@@ -11,7 +11,5 @@ type Mattermost = Session
 data MattermostC = MattermostC
   { cMmHost :: !Text
   , cMmPort :: !Int
-  , cMmPath :: !Text
-  , cMmNick :: !Text
-  , cMmPswd :: !Text
+  , cMmPath, cMmNick, cMmPswd :: !Text
   }

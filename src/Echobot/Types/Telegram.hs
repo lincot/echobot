@@ -1,4 +1,4 @@
-module Echobot.Core.Telegram
+module Echobot.Types.Telegram
   ( Telegram(..)
   , TelegramC(..)
   )

@@ -1,4 +1,4 @@
-module Echobot.Core.Xmpp
+module Echobot.Types.Xmpp
   ( Xmpp
   , XmppC(..)
   )
@@ -10,6 +10,5 @@ type Xmpp = Session
 
 data XmppC = XmppC
   { cXmppHost :: !String
-  , cXmppNick :: !Text
-  , cXmppPswd :: !Text
+  , cXmppNick, cXmppPswd :: !Text
   }

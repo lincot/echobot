@@ -22,8 +22,8 @@ import           Echobot.Bots.Matrix.Types      ( SyncState(..)
                                                 , MessageEvent(..)
                                                 , EventResponse(..)
                                                 )
-import           Echobot.Core.Bot               ( Bot(..) )
-import           Echobot.Core.Matrix            ( Matrix(..) )
+import           Echobot.Types.Bot              ( Bot(..) )
+import           Echobot.Types.Matrix           ( Matrix(..) )
 import           Network.HTTP.Req
 
 matrixBot :: App (Bot (Text, Text) Text)

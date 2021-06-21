@@ -5,7 +5,7 @@ module Echobot.Db
 where
 
 import qualified Data.HashMap.Strict           as HM
-import           Echobot.Core.Users             ( Users
+import           Echobot.Types.Users            ( Users
                                                 , User
                                                 )
 import           Echobot.App.Monad              ( App )

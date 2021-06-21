@@ -5,14 +5,14 @@ module Echobot.Config
 where
 
 import           Colog                          ( Severity(..) )
-import           Echobot.Core.Dflts             ( Dflts(..) )
-import           Echobot.Core.Irc               ( IrcC(..) )
-import           Echobot.Core.Msgs              ( Msgs(..) )
-import           Echobot.Core.Matrix            ( MatrixC(..) )
-import           Echobot.Core.Mattermost        ( MattermostC(..) )
-import           Echobot.Core.Telegram          ( TelegramC(..) )
-import           Echobot.Core.ToConnect         ( ToConnect(..) )
-import           Echobot.Core.Xmpp              ( XmppC(..) )
+import           Echobot.Types.Dflts            ( Dflts(..) )
+import           Echobot.Types.Irc              ( IrcC(..) )
+import           Echobot.Types.Msgs             ( Msgs(..) )
+import           Echobot.Types.Matrix           ( MatrixC(..) )
+import           Echobot.Types.Mattermost       ( MattermostC(..) )
+import           Echobot.Types.Telegram         ( TelegramC(..) )
+import           Echobot.Types.ToConnect        ( ToConnect(..) )
+import           Echobot.Types.Xmpp             ( XmppC(..) )
 import           Toml                           ( TomlCodec
                                                 , (.=)
                                                 )

@@ -17,7 +17,6 @@ common common-options
                      , co-log
                      , tomland
                      , unordered-containers
-                     , mtl
                      , unliftio
                      , unliftio-core
                      , text
@@ -43,16 +42,16 @@ common common-options
     ghc-options:       -Wmissing-export-lists
 
   default-language:    Haskell2010
-  default-extensions: DataKinds
-                    , DeriveGeneric
-                    , DerivingStrategies
-                    , DerivingVia
-                    , GeneralizedNewtypeDeriving
-                    , LambdaCase
-                    , MultiWayIf
-                    , OverloadedStrings
-                    , PatternSynonyms
-                    , StandaloneDeriving
+  default-extensions:  DataKinds
+                     , DeriveGeneric
+                     , DerivingStrategies
+                     , DerivingVia
+                     , GeneralizedNewtypeDeriving
+                     , LambdaCase
+                     , MultiWayIf
+                     , OverloadedStrings
+                     , PatternSynonyms
+                     , StandaloneDeriving
 
 library
   import:              common-options
@@ -72,16 +71,16 @@ library
                        Echobot.Connectors.Irc
                        Echobot.Connectors.Mattermost
                        Echobot.Connectors.Xmpp
-                       Echobot.Core.Bot
-                       Echobot.Core.Dflts
-                       Echobot.Core.Irc
-                       Echobot.Core.Matrix
-                       Echobot.Core.Mattermost
-                       Echobot.Core.Msgs
-                       Echobot.Core.Telegram
-                       Echobot.Core.ToConnect
-                       Echobot.Core.Users
-                       Echobot.Core.Xmpp
+                       Echobot.Types.Bot
+                       Echobot.Types.Dflts
+                       Echobot.Types.Irc
+                       Echobot.Types.Matrix
+                       Echobot.Types.Mattermost
+                       Echobot.Types.Msgs
+                       Echobot.Types.Telegram
+                       Echobot.Types.ToConnect
+                       Echobot.Types.Users
+                       Echobot.Types.Xmpp
                        Echobot.Db
                        Echobot.Runner
 

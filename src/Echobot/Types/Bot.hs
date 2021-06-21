@@ -1,10 +1,10 @@
-module Echobot.Core.Bot
+module Echobot.Types.Bot
   ( Bot(..)
   )
 where
 
 import           Echobot.App.Monad              ( App )
-import           Echobot.Core.Users             ( Users )
+import           Echobot.Types.Users            ( Users )
 
 data Bot c u = Bot
   { getMessages :: App [(c, u, Text)]

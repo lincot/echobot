@@ -18,20 +18,20 @@ import           Echobot.App.Env                ( Env(..)
 import           Echobot.App.Monad              ( AppEnv
                                                 , runApp
                                                 )
-import           Echobot.Core.Irc               ( Irc(..)
+import           Echobot.Types.Irc              ( Irc(..)
                                                 , IrcC(..)
                                                 )
-import           Echobot.Core.ToConnect         ( ToConnect(..) )
-import           Echobot.Core.Telegram          ( Telegram(..)
+import           Echobot.Types.ToConnect        ( ToConnect(..) )
+import           Echobot.Types.Telegram         ( Telegram(..)
                                                 , TelegramC(..)
                                                 )
-import           Echobot.Core.Matrix            ( Matrix(..)
+import           Echobot.Types.Matrix           ( Matrix(..)
                                                 , MatrixC(..)
                                                 )
-import           Echobot.Core.Mattermost        ( Mattermost
+import           Echobot.Types.Mattermost       ( Mattermost
                                                 , MattermostC(..)
                                                 )
-import           Echobot.Core.Xmpp              ( Xmpp
+import           Echobot.Types.Xmpp             ( Xmpp
                                                 , XmppC(..)
                                                 )
 import           Echobot.Config                 ( Config(..)

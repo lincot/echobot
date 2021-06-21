@@ -1,4 +1,4 @@
-module Echobot.Core.Dflts
+module Echobot.Types.Dflts
   ( Dflts(..)
   )
 where

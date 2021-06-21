@@ -1,4 +1,4 @@
-module Echobot.Core.Users
+module Echobot.Types.Users
   ( BotMode(..)
   , User(..)
   , Users
