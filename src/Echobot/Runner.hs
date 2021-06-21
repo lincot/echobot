@@ -69,18 +69,16 @@ reactNormal bot chan _ usr msg =
 reactRepeatCount :: (Eq u, Hashable u, ToText u) =>
   Bot c u -> c -> u -> User -> Text -> App ()
 reactRepeatCount bot chan src usr msg = case readMaybe $ toString msg of
-  Just c -> if c < 0 || 5 < c
-    then do
-      log' bot W $ "got too low/too big number from " <> toText src
-      again
-    else do
+  Just c -> if
+    | c < 0 -> invalid "too low"
+    | 5 < c -> invalid "too big"
+    | otherwise -> do
       log' bot I $ "changing " <> toText src <> "'s repeat count to " <> show c
       putUser (users bot) src usr { userRepeatCount = c, userMode = NormalMode }
-  Nothing -> do
-    log' bot W $ "got not a number from " <> toText src
-    again
+  Nothing -> invalid "not a"
  where
-  again = do
+  invalid n = do
+    log' bot W $ "got " <> n <> " number from " <> toText src
     msgs <- grab
     sendMessage' bot chan $ invalidMsg msgs
 

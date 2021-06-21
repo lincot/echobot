@@ -49,6 +49,7 @@ common common-options
                     , DerivingVia
                     , GeneralizedNewtypeDeriving
                     , LambdaCase
+                    , MultiWayIf
                     , OverloadedStrings
                     , PatternSynonyms
                     , StandaloneDeriving
