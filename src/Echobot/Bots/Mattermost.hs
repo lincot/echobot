@@ -13,7 +13,7 @@ import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
 import           Echobot.Core.Bot               ( Bot(..) )
 import           Network.Mattermost.Endpoints
-import           Network.Mattermost.Types       ( Channel
+import           Network.Mattermost.Types       ( ChannelId
                                                 , UserId
                                                 , RawPost(..)
                                                 , UserParam(UserMe)
@@ -27,19 +27,20 @@ import           Network.Mattermost.Types       ( Channel
 
 deriving via Text instance ToText UserId
 
-mattermostBot :: App (Bot Channel UserId)
+mattermostBot :: App (Bot ChannelId UserId)
 mattermostBot =
   Bot getMessagesMM sendMessageMM pass "Mattermost" <$> newIORef mempty
 
-getMessagesMM :: App [(Channel, UserId, Text)]
+getMessagesMM :: App [(ChannelId, UserId, Text)]
 getMessagesMM = do
   mm    <- grab
   teams <- liftIO $ mmGetUsersTeams UserMe mm
   (pure . concat =<<) $ forM teams $ \team -> do
     chans <- liftIO $ mmGetChannelsForUser UserMe (getId team) mm
     (pure . concat =<<) $ forM chans $ \chan -> do
+      let chanId = getId chan
       posts <- liftIO
-        $ mmGetPostsForChannel (getId chan) defaultPostQuery mm
+        $ mmGetPostsForChannel chanId defaultPostQuery mm
       (pure . catMaybes =<<)
         $ forM (reverse . toList $ postsOrder posts)
         $ \pId -> case lookup pId $ postsPosts posts of
@@ -51,13 +52,13 @@ getMessagesMM = do
                 log D "[Mattermost] got a post without UserId"
                 pure Nothing
               Just uId ->
-                pure $ Just (chan, uId, unsafeUserText $ postMessage p)
+                pure $ Just (chanId, uId, unsafeUserText $ postMessage p)
 
-sendMessageMM :: Channel -> Text -> App ()
-sendMessageMM chan msg = do
+sendMessageMM :: ChannelId -> Text -> App ()
+sendMessageMM chanId msg = do
   mm <- grab
   let post = RawPost
-        { rawPostChannelId = getId chan
+        { rawPostChannelId = chanId
         , rawPostMessage   = msg
         , rawPostFileIds   = mempty
         , rawPostRootId    = Nothing
