@@ -5,6 +5,7 @@ where
 
 data Msgs = Msgs
   { helpMsg    :: !Text
-  , repeatMsg  :: !Text
+  , repeat1Msg :: !Text
+  , repeat2Msg :: !Text
   , invalidMsg :: !Text
   }

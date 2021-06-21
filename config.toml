@@ -47,6 +47,6 @@ log.severity = "Debug"
   help = """i repeat (N times) everything you write, except:
 /help   -> print this message
 /repeat -> show and change your N"""
-  repeat = """your current repeat count (N) is %d
-enter your next N (0 <= N <= 5):"""
-  invalid = """invalid, again please:"""
+  repeat1 = "your current repeat count is "
+  repeat2 = "\nenter your next repeat count (0 to 5):"
+  invalid = "invalid, again please:"

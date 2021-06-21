@@ -22,7 +22,6 @@ import           Echobot.Core.Users             ( BotMode(..)
 import           Echobot.Db                     ( getUser
                                                 , putUser
                                                 )
-import           Text.Printf                    ( printf )
 import           UnliftIO.Exception             ( onException )
 
 botRunner :: (Eq u, Hashable u, ToText u) =>
@@ -57,8 +56,8 @@ reactNormal :: (Eq u, Hashable u) =>
   Bot c u -> c -> u -> User -> Text -> App ()
 reactNormal bot chan src usr "/repeat" = do
   msgs <- grab
-  sendMessage' bot chan $ toText
-    (printf (toString $ repeatMsg msgs) (userRepeatCount usr) :: String)
+  sendMessage' bot chan $  repeat1Msg msgs <> show (userRepeatCount usr)
+                        <> repeat2Msg msgs
   putUser (users bot) src usr { userMode = AwaitingRepeatCountMode }
 reactNormal bot chan _ _ msg | msg == "/help" || msg == "/start" = do
   msgs <- grab

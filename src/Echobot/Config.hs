@@ -91,7 +91,8 @@ dfltsCodec = Dflts
 msgsCodec :: TomlCodec Msgs
 msgsCodec = Msgs
   <$> Toml.text "help"    .= helpMsg
-  <*> Toml.text "repeat"  .= repeatMsg
+  <*> Toml.text "repeat1" .= repeat1Msg
+  <*> Toml.text "repeat2" .= repeat2Msg
   <*> Toml.text "invalid" .= invalidMsg
 
 loadConfig :: MonadIO m => m Config
