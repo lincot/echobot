@@ -51,7 +51,7 @@ import           UnliftIO.Async                 ( Concurrently(..)
                                                 )
 
 mkAppEnv :: Config -> IO AppEnv
-mkAppEnv conf@Config {..} =
+mkAppEnv Config {..} =
   pure Env
       { envLogAction = filterBySeverity cLogSeverity
                                         msgSeverity
@@ -61,59 +61,45 @@ mkAppEnv conf@Config {..} =
       }
     >>= foldr1
           (>=>)
-          ((`snd` conf) <$> filter (`fst` cConnect)
-            [ (connectIrc       , addIrc)
-            , (connectMatrix    , addMatrix)
-            , (connectMattermost, addMattermost)
-            , (connectTelegram  , addTelegram)
-            , (connectXmpp      , addXmpp)
+          (snd <$> filter (`fst` cConnect)
+            [ (connectIrc       , addIrc        cIrc)
+            , (connectMatrix    , addMatrix     cMatrix)
+            , (connectMattermost, addMattermost cMattermost)
+            , (connectTelegram  , addTelegram   cTelegram)
+            , (connectXmpp      , addXmpp       cXmpp)
             ]
           )
 
-addIrc :: Config -> Env m -> IO (Env m)
-addIrc Config {..} env = do
+addIrc :: IrcC -> Env m -> IO (Env m)
+addIrc IrcC {..} env = do
   putTextLn "[IRC] connecting..."
-  h <- ircConnect (cIrcHost cIrc)
-                  (cIrcPort cIrc)
-                  (cIrcChan cIrc)
-                  (cIrcNick cIrc)
-                  (cIrcName cIrc)
+  h <- ircConnect cIrcHost cIrcPort cIrcChan cIrcNick cIrcName
   putTextLn "[IRC] connected"
-  pure env { envIrc = Irc h (cIrcChan cIrc) }
+  pure env { envIrc = Irc h cIrcChan }
 
-addMatrix :: Config -> Env m -> IO (Env m)
-addMatrix Config {..} env = do
-  since <- newIORef
-    $ if cMSince cMatrix == "" then Nothing else Just $ cMSince cMatrix
+addMatrix :: MatrixC -> Env m -> IO (Env m)
+addMatrix MatrixC {..} env = do
+  since <- newIORef $ if cMSince == "" then Nothing else Just cMSince
   putTextLn "[Matrix] ready to go"
-  pure env
-    { envMatrix = Matrix (cMToken      cMatrix)
-                         (cMName       cMatrix)
-                         (cMHomeserver cMatrix)
-                         since
-    }
+  pure env { envMatrix = Matrix cMToken cMName cMHomeserver since }
 
-addMattermost :: Config -> Env m -> IO (Env m)
-addMattermost Config {..} env = do
+addMattermost :: MattermostC -> Env m -> IO (Env m)
+addMattermost MattermostC {..} env = do
   putTextLn "[Mattermost] connecting..."
-  mm <- mattermostConnect (cMmHost cMattermost)
-                          (cMmPort cMattermost)
-                          (cMmPath cMattermost)
-                          (cMmNick cMattermost)
-                          (cMmPswd cMattermost)
+  mm <- mattermostConnect cMmHost cMmPort cMmPath cMmNick cMmPswd
   putTextLn "[Mattermost] connected"
   pure env { envMattermost = mm }
 
-addTelegram :: Config -> Env m -> IO (Env m)
-addTelegram Config {..} env = do
-  o <- newIORef $ cTgOffset cTelegram
+addTelegram :: TelegramC -> Env m -> IO (Env m)
+addTelegram TelegramC {..} env = do
+  o <- newIORef cTgOffset
   putTextLn "[Telegram] ready to go"
-  pure env { envTelegram = Telegram (cTgToken cTelegram) o }
+  pure env { envTelegram = Telegram cTgToken o }
 
-addXmpp :: Config -> Env m -> IO (Env m)
-addXmpp Config {..} env = do
+addXmpp :: XmppC -> Env m -> IO (Env m)
+addXmpp XmppC {..} env = do
   putTextLn "[XMPP] connecting..."
-  xmpp <- xmppConnect (cXmppHost cXmpp) (cXmppNick cXmpp) (cXmppPswd cXmpp)
+  xmpp <- xmppConnect cXmppHost cXmppNick cXmppPswd
   putTextLn "[XMPP] connected"
   pure env { envXmpp = xmpp }
 

@@ -32,7 +32,7 @@ log.severity = "Debug"
 
 [Telegram]
   token = ""
-  # 0 to get only recent messages
+  # 0 to firstly get recent messages
   offset = 0
 
 [XMPP]

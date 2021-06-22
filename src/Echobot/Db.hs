@@ -11,9 +11,7 @@ import           Echobot.Types.Users            ( Users
 import           Echobot.App.Monad              ( App )
 
 getUser :: (Eq u, Hashable u) => Users u -> u -> App (Maybe User)
-getUser usrs name = do
-  usersMap <- readIORef usrs
-  pure $ HM.lookup name usersMap
+getUser usrs name = HM.lookup name <$> readIORef usrs
 
 putUser :: (Eq u, Hashable u) => Users u -> u -> User -> App ()
 putUser usrs name user = modifyIORef' usrs $ HM.insert name user
