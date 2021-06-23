@@ -9,24 +9,28 @@ import           Data.Time                      ( getCurrentTime )
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
 import           Echobot.Types.Severity         ( Severity(..) )
-import           System.Console.ANSI
+
+green, blue, yellow, red, magenta, reset :: Text
+green    = "\ESC[92m"
+blue     = "\ESC[94m"
+yellow   = "\ESC[93m"
+red      = "\ESC[91m"
+magenta  = "\ESC[95m"
+reset    = "\ESC[0m"
 
 log :: Severity -> Text -> Text -> App ()
 log sev loc msg = do
   minSev <- grab
   time   <- liftIO getCurrentTime
   let sevCol = case sev of
-        D -> Green
-        I -> Blue
-        W -> Yellow
-        E -> Red
-      setSevCol = toText $ setSGRCode [SetColor Foreground Vivid sevCol]
-      setMagCol = toText $ setSGRCode [SetColor Foreground Vivid Magenta]
-      resetCol  = toText $ setSGRCode [Reset]
+        D -> green
+        I -> blue
+        W -> yellow
+        E -> red
   unless (sev < minSev) $ putText
-    $  setSevCol <> show sev <> " [" <> pad 35 (show time <> "] ")
-    <> setMagCol <> "[" <> pad 10 (loc <> "] ")
-    <> resetCol <> msg <> "\n"
+    $  sevCol <> show sev <> " [" <> pad 35 (show time <> "] ")
+    <> magenta <> "[" <> pad 10 (loc <> "] ")
+    <> reset <> msg <> "\n"
 
 pad :: Int -> Text -> Text
 pad n t = t <> T.replicate (n - T.length t) " "

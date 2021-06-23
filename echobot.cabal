@@ -13,7 +13,6 @@ extra-doc-files:     README.md
 common common-options
   build-depends:       base
                      , relude
-                     , ansi-terminal
                      , time
                      , network
                      , tomland
