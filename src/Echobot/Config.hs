@@ -4,12 +4,12 @@ module Echobot.Config
   )
 where
 
-import           Colog                          ( Severity(..) )
 import           Echobot.Types.Dflts            ( Dflts(..) )
 import           Echobot.Types.Irc              ( IrcC(..) )
 import           Echobot.Types.Msgs             ( Msgs(..) )
 import           Echobot.Types.Matrix           ( MatrixC(..) )
 import           Echobot.Types.Mattermost       ( MattermostC(..) )
+import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Telegram         ( TelegramC(..) )
 import           Echobot.Types.ToConnect        ( ToConnect(..) )
 import           Echobot.Types.Xmpp             ( XmppC(..) )
@@ -19,28 +19,28 @@ import           Toml                           ( TomlCodec
 import qualified Toml
 
 data Config = Config
-  { cLogSeverity :: !Severity
-  , cConnect     :: !ToConnect
-  , cIrc         :: !IrcC
-  , cMatrix      :: !MatrixC
-  , cMattermost  :: !MattermostC
-  , cTelegram    :: !TelegramC
-  , cXmpp        :: !XmppC
-  , cDflts       :: !Dflts
-  , cMsgs        :: !Msgs
+  { cSeverity   :: !Severity
+  , cConnect    :: !ToConnect
+  , cIrc        :: !IrcC
+  , cMatrix     :: !MatrixC
+  , cMattermost :: !MattermostC
+  , cTelegram   :: !TelegramC
+  , cXmpp       :: !XmppC
+  , cDflts      :: !Dflts
+  , cMsgs       :: !Msgs
   }
 
 configCodec :: TomlCodec Config
 configCodec = Config
-  <$> Toml.read               "log.severity" .= cLogSeverity
-  <*> Toml.table connectCodec "connect"      .= cConnect
-  <*> Toml.table ircCodec     "IRC"          .= cIrc
-  <*> Toml.table matrixCodec  "Matrix"       .= cMatrix
-  <*> Toml.table mmCodec      "Mattermost"   .= cMattermost
-  <*> Toml.table tgCodec      "Telegram"     .= cTelegram
-  <*> Toml.table xmppCodec    "XMPP"         .= cXmpp
-  <*> Toml.table dfltsCodec   "defaults"     .= cDflts
-  <*> Toml.table msgsCodec    "messages"     .= cMsgs
+  <$> Toml.read               "severity"   .= cSeverity
+  <*> Toml.table connectCodec "connect"    .= cConnect
+  <*> Toml.table ircCodec     "IRC"        .= cIrc
+  <*> Toml.table matrixCodec  "Matrix"     .= cMatrix
+  <*> Toml.table mmCodec      "Mattermost" .= cMattermost
+  <*> Toml.table tgCodec      "Telegram"   .= cTelegram
+  <*> Toml.table xmppCodec    "XMPP"       .= cXmpp
+  <*> Toml.table dfltsCodec   "defaults"   .= cDflts
+  <*> Toml.table msgsCodec    "messages"   .= cMsgs
 
 connectCodec :: TomlCodec ToConnect
 connectCodec = ToConnect

@@ -3,10 +3,6 @@ module Echobot.Bots.Matrix
   )
 where
 
-import           Colog                          ( pattern D
-                                                , pattern W
-                                                , log
-                                                )
 import           Data.Aeson                     ( parseJSON )
 import           Data.Aeson.Types               ( parseEither
                                                 , Value(String)
@@ -22,6 +18,8 @@ import           Echobot.Bots.Matrix.Types      ( SyncState(..)
                                                 , MessageEvent(..)
                                                 , EventResponse(..)
                                                 )
+import           Echobot.Log                    ( log )
+import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Bot              ( Bot(..) )
 import           Echobot.Types.Matrix           ( Matrix(..) )
 import           Network.HTTP.Req
@@ -39,7 +37,7 @@ sync = do
         <> "timeout"      =:    (10000 :: Int)
         <> "since" `queryParam` since'
   rb <- responseBody <$> req GET url NoReqBody jsonResponse params
-  log D $ "[Matrix] got:\n" <> show rb
+  log D "Matrix" $ "got\n" <> show rb
   writeIORef (mSince matrix) $ Just $ next_batch rb
   pure $ rooms rb
 
@@ -70,7 +68,7 @@ sendMessageM (roomId, msgId) msg = do
       reqBody = ReqBodyJson $ MessageEvent "m.text" msg
       params  = "access_token" =: mToken matrix
   rb <- responseBody <$> req PUT url reqBody jsonResponse params
-  log D $ "[Matrix] got:\n" <> show rb
+  log D "Matrix" $ "got\n" <> show rb
   case parseEither parseJSON rb of
     Right ResponseSuccess {}    -> pass
     Right (ResponseFailure _ e) -> again e
@@ -78,7 +76,7 @@ sendMessageM (roomId, msgId) msg = do
     Left  e                     -> again $ toText e
  where
   again e = do
-    log W $ "[Matrix] could not deliver message\n" <> e
+    log W "Matrix" $ "could not deliver message\n" <> e
     sendMessageM (roomId, msgId) msg
 
 apiBase :: Text -> Url 'Https

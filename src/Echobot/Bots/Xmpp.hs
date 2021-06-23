@@ -6,10 +6,6 @@ module Echobot.Bots.Xmpp
   )
 where
 
-import           Colog                          ( pattern D
-                                                , pattern E
-                                                , log
-                                                )
 import           Network.Xmpp.IM                ( getIM
                                                 , withIM
                                                 , instantMessage
@@ -26,6 +22,8 @@ import qualified Network.Xmpp                  as Xmpp
                                                 ( sendMessage )
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
+import           Echobot.Log                    ( log )
+import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Bot              ( Bot(..) )
 
 instance ToText Jid where
@@ -47,10 +45,10 @@ getMessagesXmpp = do
     Just sender -> case getIM message' of
       Just im -> pure $ ("", sender, ) . bodyContent <$> imBody im
       Nothing -> do
-        log D "[XMPP] received message with no IM data"
+        log D "XMPP" "received message with no IM data"
         getMessagesXmpp
     Nothing -> do
-      log D "[XMPP] received message with no sender"
+      log D "XMPP" "received message with no sender"
       getMessagesXmpp
 
 sendMessageXmpp :: Text -> Text -> App ()
@@ -60,5 +58,5 @@ sendMessageXmpp _ msg = do
                         instantMessage { imBody = [MessageBody Nothing msg] }
   me <- liftIO $ Xmpp.sendMessage message' xmpp
   case me of
-    Left e -> log E $ "[XMPP] " <> show e
+    Left e -> log E "XMPP" $ show e
     _      -> pass

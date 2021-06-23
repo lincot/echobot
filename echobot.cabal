@@ -13,8 +13,9 @@ extra-doc-files:     README.md
 common common-options
   build-depends:       base
                      , relude
+                     , ansi-terminal
+                     , time
                      , network
-                     , co-log
                      , tomland
                      , unordered-containers
                      , unliftio
@@ -52,6 +53,8 @@ common common-options
                      , OverloadedStrings
                      , PatternSynonyms
                      , StandaloneDeriving
+                     , TypeApplications
+                     , ViewPatterns
 
 library
   import:              common-options
@@ -71,18 +74,20 @@ library
                        Echobot.Connectors.Irc
                        Echobot.Connectors.Mattermost
                        Echobot.Connectors.Xmpp
+                       Echobot.Db
+                       Echobot.Log
+                       Echobot.Runner
                        Echobot.Types.Bot
                        Echobot.Types.Dflts
                        Echobot.Types.Irc
                        Echobot.Types.Matrix
                        Echobot.Types.Mattermost
                        Echobot.Types.Msgs
+                       Echobot.Types.Severity
                        Echobot.Types.Telegram
                        Echobot.Types.ToConnect
                        Echobot.Types.Users
                        Echobot.Types.Xmpp
-                       Echobot.Db
-                       Echobot.Runner
 
 executable echobot
   import:              common-options

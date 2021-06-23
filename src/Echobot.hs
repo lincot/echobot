@@ -1,16 +1,11 @@
 {-# OPTIONS -Wno-missing-fields #-}
 {-# LANGUAGE RecordWildCards    #-}
-{-# LANGUAGE TypeApplications   #-}
 
 module Echobot
   ( main
   )
 where
 
-import           Colog                          ( filterBySeverity
-                                                , msgSeverity
-                                                , richMessageAction
-                                                )
 import           Data.List                      ( foldr1 )
 import           Echobot.App.Env                ( Env(..)
                                                 , initialisedField
@@ -52,13 +47,7 @@ import           UnliftIO.Async                 ( Concurrently(..)
 
 mkAppEnv :: Config -> IO AppEnv
 mkAppEnv Config {..} =
-  pure Env
-      { envLogAction = filterBySeverity cLogSeverity
-                                        msgSeverity
-                                        richMessageAction
-      , envDflts     = cDflts
-      , envMsgs      = cMsgs
-      }
+  pure Env { envSeverity = cSeverity, envDflts = cDflts, envMsgs = cMsgs }
     >>= foldr1
           (>=>)
           (snd <$> filter (`fst` cConnect)

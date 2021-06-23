@@ -6,11 +6,10 @@ module Echobot.Bots.Mattermost
 where
 
 import           Data.HashMap.Strict            ( lookup )
-import           Colog                          ( pattern D
-                                                , log
-                                                )
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
+import           Echobot.Log                    ( log )
+import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Bot              ( Bot(..) )
 import           Network.Mattermost.Endpoints
 import           Network.Mattermost.Types       ( ChannelId
@@ -45,11 +44,11 @@ getMessagesMM = do
         $ forM (reverse . toList $ postsOrder posts)
         $ \pId -> case lookup pId $ postsPosts posts of
             Nothing -> do
-              log D "[Mattermost] could not find a post by PostId"
+              log D "Mattermost" "could not find a post by PostId"
               pure Nothing
             Just p -> case postUserId p of
               Nothing -> do
-                log D "[Mattermost] got a post without UserId"
+                log D "Mattermost" "got a post without UserId"
                 pure Nothing
               Just uId ->
                 pure $ Just (chanId, uId, unsafeUserText $ postMessage p)

@@ -1,4 +1,5 @@
-log.severity = "Debug"
+# lowest severity of logs to be shown, Debug < Info < Warning < Error
+severity = "I"
 
 [connect]
   IRC        = true
@@ -44,9 +45,9 @@ log.severity = "Debug"
   repeatCount = 1
 
 [messages]
-  help = """i repeat (N times) everything you write, except:
+  help = """I repeat everything you write, except:
 /help   -> print this message
-/repeat -> show and change your N"""
+/repeat -> show and change your repeat count"""
   repeat1 = "your current repeat count is "
   repeat2 = "\nenter your next repeat count (0 to 5):"
   invalid = "invalid, again please:"

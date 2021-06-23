@@ -5,10 +5,6 @@ module Echobot.Bots.Telegram
   )
 where
 
-import           Colog                          ( pattern D
-                                                , pattern W
-                                                , log
-                                                )
 import           Data.Aeson                     ( FromJSON
                                                 , parseJSON
                                                 )
@@ -21,6 +17,8 @@ import           Echobot.Bots.Telegram.Types    ( TgResponse(TgResponse)
                                                 , TgChat(TgChat)
                                                 , TgUser(TgUser)
                                                 )
+import           Echobot.Log                    ( log )
+import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Bot              ( Bot(..) )
 import           Echobot.Types.Telegram         ( Telegram(..) )
 import           Network.HTTP.Req
@@ -40,7 +38,7 @@ reqTg token method params = do
   rb <- responseBody <$> req GET url NoReqBody jsonResponse params
   case parseEither parseJSON rb of
     Right (TgResponse _ (Just result)) -> do
-      log D $ "[Telegram] got:\n" <> show result
+      log D "Telegram" $ "got\n" <> show result
       pure $ Right result
     Right (TgResponse (Just desc) _) -> pure $ Left desc
     Right (TgResponse _ _) -> pure $ Left "got nothing :O"
@@ -55,7 +53,7 @@ getUpdates = do
     <> "timeout" =: (10 :: Int)
   case r of
     Left e -> do
-      log W $ "[Telegram] could not get updates\n" <> e
+      log W "Telegram" $ "could not get updates\n" <> e
       getUpdates
     Right upds -> case viaNonEmpty last upds of
       Just upd -> do
@@ -79,6 +77,6 @@ sendMessageTg chat msg = do
     <> "text"    =: msg
   case r of
     Left e -> do
-      log W $ "[Telegram] could not deliver message\n" <> e
+      log W "Telegram" $ "could not deliver message\n" <> e
       sendMessageTg chat msg
     Right TgMessage {} -> pass

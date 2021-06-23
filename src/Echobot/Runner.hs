@@ -5,14 +5,10 @@ module Echobot.Runner
   )
 where
 
-import           Colog                          ( pattern I
-                                                , pattern W
-                                                , log
-                                                , Msg
-                                                , WithLog
-                                                )
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
+import           Echobot.Log                    ( log )
+import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Bot              ( Bot(..) )
 import           Echobot.Types.Dflts            ( Dflts(..) )
 import           Echobot.Types.Msgs             ( Msgs(..) )
@@ -36,7 +32,7 @@ runBot bot = forever $ do
   msgs <- getMessages bot
   mapM
     (\(chan, uid, msg) -> do
-      log' bot I ("received message:\n" <> toText uid <> ": " <> msg)
+      log' bot I $ "received message from " <> toText uid <> "\n" <> msg
       react bot chan uid msg
     )
     msgs
@@ -74,7 +70,7 @@ reactRepeatCount :: (Eq u, Hashable u, ToText u) =>
   Bot c u -> c -> u -> User -> Text -> App ()
 reactRepeatCount bot chan uid usr msg = case readMaybe $ toString msg of
   Just c -> if
-    | c < 0 -> invalid "too low"
+    | c < 0 -> invalid "a negative"
     | 5 < c -> invalid "too big"
     | otherwise -> do
       log' bot I $ "changing " <> toText uid <> "'s repeat count to " <> show c
@@ -88,8 +84,8 @@ reactRepeatCount bot chan uid usr msg = case readMaybe $ toString msg of
 
 sendMessage' :: Bot c u -> c -> Text -> App ()
 sendMessage' bot c t = do
-  log' bot I $ "sending message:\n" <> t
+  log' bot I $ "sending message\n" <> t
   sendMessage bot c t
 
-log' :: WithLog env (Msg sev) m => Bot c u -> sev -> Text -> m ()
-log' bot sev = log sev . (("[" <> botName bot <> "] ") <>)
+log' :: Bot c u -> Severity -> Text -> App ()
+log' bot sev = log sev (botName bot)

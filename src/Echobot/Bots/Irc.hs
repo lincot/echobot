@@ -1,20 +1,16 @@
-{-# LANGUAGE ViewPatterns #-}
-
 module Echobot.Bots.Irc
   ( ircBot
   )
 where
 
-import           Colog                          ( pattern D
-                                                , pattern I
-                                                , log
-                                                )
 import qualified Data.Text                     as T
 import           Data.Text.IO                   ( hGetLine
                                                 , hPutStrLn
                                                 )
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
+import           Echobot.Log                    ( log )
+import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Bot              ( Bot(..) )
 import           Echobot.Types.Irc              ( Irc(..) )
 import           UnliftIO.IO                    ( hClose )
@@ -26,14 +22,14 @@ writeIrc :: Text -> Text -> App ()
 writeIrc cmd args = do
   irc <- grab
   let line = cmd <> " " <> args
-  log D $ "[IRC] writing:\n" <> line
+  log D "IRC" $ "writing\n" <> line
   liftIO $ hPutStrLn (ircSocket irc) line
 
 getMessagesIrc :: App [(Text, Text, Text)]
 getMessagesIrc = do
   irc  <- grab
   line <- liftIO $ hGetLine $ ircSocket irc
-  log D $ "[IRC] reading:\n" <> line
+  log D "IRC" $ "reading\n" <> line
   let (src, cmd, _, msg) = parseLine line
   case cmd of
     "PING" -> do
@@ -42,7 +38,8 @@ getMessagesIrc = do
     "PRIVMSG" -> if "/utility-bot" `T.isInfixOf` src
       then getMessagesIrc
       else pure [(ircChan irc, src, msg)]
-    _ -> getMessagesIrc
+    "366" -> log I "IRC" "joined channel" >> getMessagesIrc
+    _     -> getMessagesIrc
 
 sendMessageIrc :: Text -> Text -> App ()
 sendMessageIrc chan msg =
@@ -51,7 +48,7 @@ sendMessageIrc chan msg =
 disableIrc :: App ()
 disableIrc = do
   irc <- grab
-  log I "[IRC] closing handle"
+  log I "IRC" "closing handle"
   hClose $ ircSocket irc
 
 parseLine :: Text -> (Text, Text, Text, Text)
