@@ -83,9 +83,9 @@ reactRepeatCount bot chan uid usr msg = case readMaybe $ toString msg of
     sendMessage' bot chan $ invalidMsg msgs
 
 sendMessage' :: Bot c u -> c -> Text -> App ()
-sendMessage' bot c t = do
-  log' bot I $ "sending message\n" <> t
-  sendMessage bot c t
+sendMessage' bot chan msg = do
+  log' bot I $ "sending message\n" <> msg
+  sendMessage bot chan msg
 
 log' :: Bot c u -> Severity -> Text -> App ()
-log' bot sev = log sev (botName bot)
+log' = flip log . botName

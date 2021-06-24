@@ -30,12 +30,12 @@ matrixBot = Bot getMessagesM sendMessageM pass "Matrix" <$> newIORef mempty
 sync :: App Rooms
 sync = do
   matrix <- grab
-  since' <- readIORef $ mSince matrix
+  since  <- readIORef $ mSince matrix
   let url = apiBase (mHomeserver matrix) /: "sync"
       params
         =  "access_token" =:    mToken matrix
         <> "timeout"      =:    (10000 :: Int)
-        <> "since" `queryParam` since'
+        <> "since" `queryParam` since
   rb <- responseBody <$> req GET url NoReqBody jsonResponse params
   log D "Matrix" $ "got\n" <> show rb
   writeIORef (mSince matrix) $ Just $ next_batch rb

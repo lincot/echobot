@@ -1,4 +1,4 @@
-cabal-version:       2.4
+cabal-version:       3.0
 name:                echobot
 version:             0.0.0.0
 synopsis:            a chat bot for IRC/Matrix/Mattermost/Telegram/XMPP
@@ -11,23 +11,8 @@ build-type:          Simple
 extra-doc-files:     README.md
 
 common common-options
-  build-depends:       base
+  build-depends:       base-noprelude
                      , relude
-                     , time
-                     , network
-                     , tomland
-                     , unordered-containers
-                     , unliftio
-                     , unliftio-core
-                     , text
-                     , req
-                     , aeson
-                     , data-default
-                     , pontarius-xmpp
-                     , mattermost-api
-
-  mixins:              base hiding (Prelude)
-                     , relude (Relude as Prelude)
 
   ghc-options:         -Wall
                        -Wcompat
@@ -59,6 +44,7 @@ library
   import:              common-options
   hs-source-dirs:      src
   exposed-modules:     Echobot
+                       Prelude
   other-modules:       Echobot.App.Env
                        Echobot.App.Monad
                        Echobot.Bots.Irc
@@ -87,6 +73,18 @@ library
                        Echobot.Types.ToConnect
                        Echobot.Types.Users
                        Echobot.Types.Xmpp
+  build-depends:       text
+                     , time
+                     , tomland
+                     , unordered-containers
+                     , unliftio
+                     , unliftio-core
+                     , network
+                     , aeson
+                     , req
+                     , data-default
+                     , pontarius-xmpp
+                     , mattermost-api
 
 executable echobot
   import:              common-options
