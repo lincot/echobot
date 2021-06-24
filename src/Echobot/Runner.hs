@@ -7,6 +7,9 @@ where
 
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
+import           Echobot.Db                     ( getUser
+                                                , putUser
+                                                )
 import           Echobot.Log                    ( log )
 import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Bot              ( Bot(..) )
@@ -14,9 +17,6 @@ import           Echobot.Types.Dflts            ( Dflts(..) )
 import           Echobot.Types.Msgs             ( Msgs(..) )
 import           Echobot.Types.Users            ( BotMode(..)
                                                 , User(..)
-                                                )
-import           Echobot.Db                     ( getUser
-                                                , putUser
                                                 )
 import           UnliftIO.Exception             ( onException )
 

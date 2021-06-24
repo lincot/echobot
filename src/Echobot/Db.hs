@@ -5,10 +5,10 @@ module Echobot.Db
 where
 
 import qualified Data.HashMap.Strict           as HM
+import           Echobot.App.Monad              ( App )
 import           Echobot.Types.Users            ( Users
                                                 , User
                                                 )
-import           Echobot.App.Monad              ( App )
 
 getUser :: (Eq u, Hashable u) => Users u -> u -> App (Maybe User)
 getUser users uid = HM.lookup uid <$> readIORef users

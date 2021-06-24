@@ -3,5 +3,5 @@ module Echobot.Types.Severity
   )
 where
 
--- Debug, Info, Warning, Error
-data Severity = D | I | W | E deriving (Show, Read, Eq, Ord)
+-- Debug, Info, Warning, Error, Notify
+data Severity = D | I | W | E | N deriving (Show, Read, Eq, Ord)

@@ -48,7 +48,7 @@ sendMessageIrc chan msg =
 disableIrc :: App ()
 disableIrc = do
   irc <- grab
-  log I "IRC" "closing handle"
+  log D "IRC" "closing handle"
   hClose $ ircSocket irc
 
 parseLine :: Text -> (Text, Text, Text, Text)
