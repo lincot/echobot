@@ -44,11 +44,11 @@ mkAppEnv :: Config -> IO AppEnv
 mkAppEnv Config { cConnect = ToConnect {..}, ..} = foldr1
   (>=>)
   (snd <$> filter fst
-    [ (connectIrc       , addIrc cIrc)
-    , (connectMatrix    , addMatrix cMatrix)
+    [ (connectIrc       , addIrc        cIrc)
+    , (connectMatrix    , addMatrix     cMatrix)
     , (connectMattermost, addMattermost cMattermost)
-    , (connectTelegram  , addTelegram cTelegram)
-    , (connectXmpp      , addXmpp cXmpp)
+    , (connectTelegram  , addTelegram   cTelegram)
+    , (connectXmpp      , addXmpp       cXmpp)
     ]
   )
   (Env { envSeverity = cSeverity, envDflts = cDflts, envMsgs = cMsgs })
