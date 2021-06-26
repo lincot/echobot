@@ -37,6 +37,7 @@ common common-options
                      , OverloadedStrings
                      , PatternSynonyms
                      , StandaloneDeriving
+                     , TupleSections
                      , TypeApplications
                      , ViewPatterns
 

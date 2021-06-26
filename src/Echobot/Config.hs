@@ -5,11 +5,11 @@ module Echobot.Config
 where
 
 import           Echobot.Types.Dflts            ( Dflts(..) )
+import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Irc              ( IrcC(..) )
 import           Echobot.Types.Msgs             ( Msgs(..) )
 import           Echobot.Types.Matrix           ( MatrixC(..) )
 import           Echobot.Types.Mattermost       ( MattermostC(..) )
-import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Telegram         ( TelegramC(..) )
 import           Echobot.Types.ToConnect        ( ToConnect(..) )
 import           Echobot.Types.Xmpp             ( XmppC(..) )

@@ -8,21 +8,17 @@ module Echobot.App.Env
   ( Env(..)
   , Has(..)
   , grab
-  , initialisedField
   )
 where
 
 import           Echobot.Types.Dflts            ( Dflts )
 import           Echobot.Types.Msgs             ( Msgs )
+import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Irc              ( Irc )
 import           Echobot.Types.Matrix           ( Matrix )
 import           Echobot.Types.Mattermost       ( Mattermost )
-import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Telegram         ( Telegram )
 import           Echobot.Types.Xmpp             ( Xmpp )
-import           Control.Exception              ( RecConError(..) )
-import           Control.Monad.IO.Unlift        ( MonadUnliftIO )
-import           UnliftIO.Exception             ( try )
 
 data Env (m :: Type -> Type) = Env
   { envSeverity   :: !Severity
@@ -50,14 +46,3 @@ instance Has Xmpp       (Env m) where obtain = envXmpp
 grab :: forall field env m . (MonadReader env m, Has field env) => m field
 grab = asks $ obtain @field
 {-# INLINE grab #-}
-
-initialisedField
-  :: forall field env m
-   . (MonadReader env m, Has field env, MonadUnliftIO m)
-  => m Bool
-initialisedField = do
-  f   <- grab @field
-  eef <- try $ evaluateWHNF f
-  pure $ case eef of
-    Left RecConError {} -> False
-    _                   -> True
