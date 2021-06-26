@@ -11,7 +11,12 @@ import           Echobot.App.Monad              ( App )
 import           Echobot.Log                    ( log )
 import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Bot              ( Bot(..) )
-import           Network.Mattermost.Endpoints
+import           Network.Mattermost.Endpoints   ( defaultPostQuery
+                                                , mmCreatePost
+                                                , mmGetChannelsForUser
+                                                , mmGetPostsForChannel
+                                                , mmGetUsersTeams
+                                                )
 import           Network.Mattermost.Types       ( ChannelId
                                                 , UserId
                                                 , RawPost(..)

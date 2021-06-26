@@ -21,9 +21,9 @@ import           Echobot.Types.Telegram         ( Telegram )
 import           Echobot.Types.Xmpp             ( Xmpp )
 
 data Env (m :: Type -> Type) = Env
-  { envSeverity   :: !Severity
-  , envDflts      :: !Dflts
+  { envDflts      :: !Dflts
   , envMsgs       :: !Msgs
+  , envSeverity   :: !Severity
   , envIrc        :: Irc
   , envMatrix     :: Matrix
   , envMattermost :: Mattermost
@@ -34,9 +34,9 @@ data Env (m :: Type -> Type) = Env
 class Has field env where
   obtain :: env -> field
 
-instance Has Severity   (Env m) where obtain = envSeverity
 instance Has Dflts      (Env m) where obtain = envDflts
 instance Has Msgs       (Env m) where obtain = envMsgs
+instance Has Severity   (Env m) where obtain = envSeverity
 instance Has Irc        (Env m) where obtain = envIrc
 instance Has Matrix     (Env m) where obtain = envMatrix
 instance Has Mattermost (Env m) where obtain = envMattermost

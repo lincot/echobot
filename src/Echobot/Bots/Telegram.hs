@@ -46,9 +46,9 @@ reqTg token method params = do
 
 getUpdates :: App [TgUpdate]
 getUpdates = do
-  tg <- grab
-  offset <- readIORef $ tgOffset tg
-  r <- reqTg (tgToken tg) "getUpdates"
+  Telegram {..} <- grab
+  offset        <- readIORef tgOffset
+  r <- reqTg tgToken "getUpdates"
     $  "offset"  =: offset
     <> "timeout" =: (10 :: Int)
   case r of
@@ -57,7 +57,7 @@ getUpdates = do
       getUpdates
     Right upds -> case viaNonEmpty last upds of
       Just upd -> do
-        writeIORef (tgOffset tg) $ update_id upd + 1
+        writeIORef tgOffset $ update_id upd + 1
         pure upds
       Nothing  -> getUpdates
 
@@ -71,8 +71,8 @@ getMessagesTg = do
 
 sendMessageTg :: Int -> Text -> App ()
 sendMessageTg chat msg = do
-  tg <- grab
-  r <- reqTg (tgToken tg) "sendMessage"
+  Telegram {..} <- grab
+  r <- reqTg tgToken "sendMessage"
     $  "chat_id" =: chat
     <> "text"    =: msg
   case r of

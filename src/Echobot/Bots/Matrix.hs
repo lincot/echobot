@@ -29,26 +29,26 @@ matrixBot = Bot getMessagesM sendMessageM pass "Matrix" <$> newIORef mempty
 
 sync :: App Rooms
 sync = do
-  matrix <- grab
-  since  <- readIORef $ mSince matrix
-  let url = apiBase (mHomeserver matrix) /: "sync"
+  Matrix {..} <- grab
+  since       <- readIORef mSince
+  let url = apiBase mHomeserver /: "sync"
       params
-        =  "access_token" =:    mToken matrix
+        =  "access_token" =:    mToken
         <> "timeout"      =:    (10000 :: Int)
         <> "since" `queryParam` since
   rb <- responseBody <$> req GET url NoReqBody jsonResponse params
   log D "Matrix" $ "got\n" <> show rb
-  writeIORef (mSince matrix) $ Just $ next_batch rb
+  writeIORef mSince $ Just $ next_batch rb
   pure $ rooms rb
 
 getMessagesM :: App [((Text, Text), Text, Text)]
 getMessagesM = do
-  matrix <- grab
+  Matrix {..} <- grab
   rooms' <- sync
   let a :: HML.HashMap Text [RoomEvent]
       a = filter (\event
         -> eventType event == "m.room.message"
-        && sender event /= mName matrix
+        && sender event /= mName
         && HML.lookup "msgtype" (content event) == Just "m.text"
                            ) . events . timeline <$> joinedRooms rooms'
       b :: [((Text, Text), Text, Maybe Value)]
@@ -62,11 +62,11 @@ getMessagesM = do
 
 sendMessageM :: (Text, Text) -> Text -> App ()
 sendMessageM (roomId, msgId) msg = do
-  matrix <- grab
-  let url = apiBase (mHomeserver matrix) /: "rooms" /: roomId /: "send"
+  Matrix {..} <- grab
+  let url = apiBase mHomeserver /: "rooms" /: roomId /: "send"
           /: "m.room.message" /: msgId
       reqBody = ReqBodyJson $ MessageEvent "m.text" msg
-      params  = "access_token" =: mToken matrix
+      params  = "access_token" =: mToken
   rb <- responseBody <$> req PUT url reqBody jsonResponse params
   log D "Matrix" $ "got\n" <> show rb
   case parseEither parseJSON rb of

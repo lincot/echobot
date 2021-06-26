@@ -20,15 +20,15 @@ ircBot = Bot getMessagesIrc sendMessageIrc disableIrc "IRC" <$> newIORef mempty
 
 writeIrc :: Text -> Text -> App ()
 writeIrc cmd args = do
-  irc <- grab
+  Irc {..} <- grab
   let line = cmd <> " " <> args
   log D "IRC" $ "writing\n" <> line
-  liftIO $ hPutStrLn (ircSocket irc) line
+  liftIO $ hPutStrLn ircSocket line
 
 getMessagesIrc :: App [(Text, Text, Text)]
 getMessagesIrc = do
-  irc  <- grab
-  line <- liftIO $ hGetLine $ ircSocket irc
+  Irc {..} <- grab
+  line     <- liftIO $ hGetLine ircSocket
   log D "IRC" $ "reading\n" <> line
   let (src, cmd, _, msg) = parseLine line
   case cmd of
@@ -37,7 +37,7 @@ getMessagesIrc = do
       getMessagesIrc
     "PRIVMSG" -> if "/utility-bot" `T.isInfixOf` src
       then getMessagesIrc
-      else pure [(ircChan irc, src, msg)]
+      else pure [(ircChan, src, msg)]
     "366" -> log I "IRC" "joined channel" >> getMessagesIrc
     _     -> getMessagesIrc
 
@@ -47,9 +47,9 @@ sendMessageIrc chan msg =
 
 disableIrc :: App ()
 disableIrc = do
-  irc <- grab
+  Irc {..} <- grab
   log D "IRC" "closing handle"
-  hClose $ ircSocket irc
+  hClose ircSocket
 
 parseLine :: Text -> (Text, Text, Text, Text)
 parseLine (T.stripPrefix "PING " -> Just suf) = ("", "PING", "", T.init suf)

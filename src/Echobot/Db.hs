@@ -6,8 +6,8 @@ where
 
 import qualified Data.HashMap.Strict           as HM
 import           Echobot.App.Monad              ( App )
-import           Echobot.Types.Users            ( Users
-                                                , User
+import           Echobot.Types.Users            ( User
+                                                , Users
                                                 )
 
 getUser :: (Eq u, Hashable u) => Users u -> u -> App (Maybe User)

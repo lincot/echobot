@@ -1,5 +1,4 @@
 {-# OPTIONS -Wno-missing-fields #-}
-{-# LANGUAGE RecordWildCards    #-}
 
 module Echobot
   ( main
@@ -41,15 +40,15 @@ import           UnliftIO.Async                 ( Concurrently(..)
                                                 , runConcurrently
                                                 )
 
-mkAppEnv :: Config -> IO (AppEnv, ToConnect)
-mkAppEnv Config {..} = (, cConnect) <$> foldr1
+mkAppEnv :: Config -> IO AppEnv
+mkAppEnv Config { cConnect = ToConnect {..}, ..} = foldr1
   (>=>)
-  (snd <$> filter (`fst` cConnect)
-    [ (connectIrc       , addIrc        cIrc)
-    , (connectMatrix    , addMatrix     cMatrix)
+  (snd <$> filter fst
+    [ (connectIrc       , addIrc cIrc)
+    , (connectMatrix    , addMatrix cMatrix)
     , (connectMattermost, addMattermost cMattermost)
-    , (connectTelegram  , addTelegram   cTelegram)
-    , (connectXmpp      , addXmpp       cXmpp)
+    , (connectTelegram  , addTelegram cTelegram)
+    , (connectXmpp      , addXmpp cXmpp)
     ]
   )
   (Env { envSeverity = cSeverity, envDflts = cDflts, envMsgs = cMsgs })
@@ -87,8 +86,8 @@ addXmpp XmppC {..} env = do
   logIO N "XMPP" "connected"
   pure env { envXmpp = xmpp }
 
-runBots :: (AppEnv, ToConnect) -> IO ()
-runBots (env, ToConnect {..}) = runApp env $ do
+runBots :: AppEnv -> ToConnect -> IO ()
+runBots env ToConnect {..} = runApp env $ do
   let actions = snd <$> filter fst
         [ (connectIrc       , botRunner =<< ircBot)
         , (connectMatrix    , botRunner =<< matrixBot)
@@ -99,4 +98,7 @@ runBots (env, ToConnect {..}) = runApp env $ do
   runConcurrently $ foldr1 (*>) $ Concurrently <$> actions
 
 main :: IO ()
-main = loadConfig >>= mkAppEnv >>= runBots
+main = do
+  conf   <- loadConfig
+  appEnv <- mkAppEnv conf
+  runBots appEnv $ cConnect conf
