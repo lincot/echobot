@@ -44,18 +44,16 @@ sync = do
 getMessagesM :: App [((Text, Text), Text, Text)]
 getMessagesM = do
   Matrix {..} <- grab
-  rooms' <- sync
-  let a :: HML.HashMap Text [RoomEvent]
-      a = filter (\event
-        -> eventType event == "m.room.message"
-        && sender event /= mName
-        && HML.lookup "msgtype" (content event) == Just "m.text"
-                           ) . events . timeline <$> joinedRooms rooms'
+  rooms'      <- sync
+  let a :: HashMap Text [RoomEvent]
+      a = filter (\RoomEvent{..}
+        -> eventType == "m.room.message"
+        && sender /= mName
+        && HML.lookup "msgtype" content == Just "m.text"
+                 ) . events . timeline <$> joinedRooms rooms'
       b :: [((Text, Text), Text, Maybe Value)]
-      b = concat $ (\(roomId, events') -> (\event -> (
-       (roomId, event_id event), sender event, HML.lookup "body" (content event)
-                                                     )) <$> events'
-                   ) <$> HML.toList a
+      b = HML.toList a >>= (\(roomId, events') -> events' <&> (\RoomEvent{..}
+        -> ((roomId, event_id), sender, HML.lookup "body" content)))
   pure [ ((roomId, eId), sender', msg)
        | ((roomId, eId), sender', Just (String msg))
        <- b ]
@@ -63,8 +61,8 @@ getMessagesM = do
 sendMessageM :: (Text, Text) -> Text -> App ()
 sendMessageM (roomId, msgId) msg = do
   Matrix {..} <- grab
-  let url = apiBase mHomeserver /: "rooms" /: roomId /: "send"
-          /: "m.room.message" /: msgId
+  let url = apiBase mHomeserver /: "rooms" /: roomId
+          /: "send" /: "m.room.message" /: msgId
       reqBody = ReqBodyJson $ MessageEvent "m.text" msg
       params  = "access_token" =: mToken
   rb <- responseBody <$> req PUT url reqBody jsonResponse params

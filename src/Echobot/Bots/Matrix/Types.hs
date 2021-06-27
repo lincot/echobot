@@ -20,7 +20,7 @@ data SyncState = SyncState
   } deriving (Show, Generic, FromJSON)
 
 newtype Rooms = Rooms
-  { joinedRooms :: HML.HashMap Text JoinedRoom
+  { joinedRooms :: HashMap Text JoinedRoom
   } deriving stock Show
 
 instance FromJSON Rooms where
