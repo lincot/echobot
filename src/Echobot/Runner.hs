@@ -28,14 +28,11 @@ botRunner bot@Bot {..} = do
 
 runBot :: (Eq u, Hashable u, ToText u) =>
   Bot c u -> App ()
-runBot bot@Bot {..} = forever $ do
-  msgs <- getMessages
-  mapM
-    (\(chan, uid, msg) -> do
-      log I botName $ "received message from " <> toText uid <> "\n" <> msg
-      react bot chan uid msg
-    )
-    msgs
+runBot bot@Bot {..} = forever $ mapM
+  (\(chan, uid, msg) -> do
+    log I botName $ "received message from " <> toText uid <> "\n" <> msg
+    react bot chan uid msg
+  ) =<< getMessages
 
 react :: (Eq u, Hashable u, ToText u) =>
   Bot c u -> c -> u -> Text -> App ()

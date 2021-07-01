@@ -42,8 +42,7 @@ getMessagesIrc = do
     _     -> getMessagesIrc
 
 sendMessageIrc :: Text -> Text -> App ()
-sendMessageIrc chan msg =
-  mapM_ (writeIrc "PRIVMSG" . ((chan <> " :") <>)) $ lines msg
+sendMessageIrc chan = mapM_ (writeIrc "PRIVMSG" . ((chan <> " :") <>)) . lines
 
 disableIrc :: App ()
 disableIrc = do

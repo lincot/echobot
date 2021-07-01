@@ -1,4 +1,4 @@
-# lowest severity of logs to be shown, Debug < Info < Warning < Error < Notify
+# lowest severity of logs to be shown, Debug < Info < Warning < Error
 severity = "I"
 
 [connect]

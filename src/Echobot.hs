@@ -43,7 +43,7 @@ import           UnliftIO.Async                 ( Concurrently(..)
 mkAppEnv :: Config -> IO AppEnv
 mkAppEnv Config { cConnect = ToConnect {..}, ..} = foldr1
   (>=>)
-  (snd <$> filter fst
+  ((`snd` cSeverity) <$> filter fst
     [ (connectIrc       , addIrc        cIrc)
     , (connectMatrix    , addMatrix     cMatrix)
     , (connectMattermost, addMattermost cMattermost)
@@ -53,37 +53,37 @@ mkAppEnv Config { cConnect = ToConnect {..}, ..} = foldr1
   )
   (Env { envSeverity = cSeverity, envDflts = cDflts, envMsgs = cMsgs })
 
-addIrc :: IrcC -> Env m -> IO (Env m)
-addIrc IrcC {..} env = do
-  logIO N "IRC" "connecting..."
+addIrc :: IrcC -> Severity -> Env m -> IO (Env m)
+addIrc IrcC {..} s env = do
+  logIO s I "IRC" "connecting..."
   h <- ircConnect cIrcHost cIrcPort cIrcChan cIrcNick cIrcName
-  logIO N "IRC" "connected"
+  logIO s I "IRC" "connected"
   pure env { envIrc = Irc h cIrcChan }
 
-addMatrix :: MatrixC -> Env m -> IO (Env m)
-addMatrix MatrixC {..} env = do
+addMatrix :: MatrixC -> Severity -> Env m -> IO (Env m)
+addMatrix MatrixC {..} s env = do
   since <- newIORef $ if cMSince == "" then Nothing else Just cMSince
-  logIO N "Matrix" "ready to go"
+  logIO s I "Matrix" "ready to go"
   pure env { envMatrix = Matrix cMToken cMName cMHomeserver since }
 
-addMattermost :: MattermostC -> Env m -> IO (Env m)
-addMattermost MattermostC {..} env = do
-  logIO N "Mattermost" "connecting..."
+addMattermost :: MattermostC -> Severity -> Env m -> IO (Env m)
+addMattermost MattermostC {..} s env = do
+  logIO s I "Mattermost" "connecting..."
   mm <- mattermostConnect cMmHost cMmPort cMmPath cMmNick cMmPswd
-  logIO N "Mattermost" "connected"
+  logIO s I "Mattermost" "connected"
   pure env { envMattermost = mm }
 
-addTelegram :: TelegramC -> Env m -> IO (Env m)
-addTelegram TelegramC {..} env = do
+addTelegram :: TelegramC -> Severity -> Env m -> IO (Env m)
+addTelegram TelegramC {..} s env = do
   o <- newIORef cTgOffset
-  logIO N "Telegram" "ready to go"
+  logIO s I "Telegram" "ready to go"
   pure env { envTelegram = Telegram cTgToken o }
 
-addXmpp :: XmppC -> Env m -> IO (Env m)
-addXmpp XmppC {..} env = do
-  logIO N "XMPP" "connecting..."
+addXmpp :: XmppC -> Severity -> Env m -> IO (Env m)
+addXmpp XmppC {..} s env = do
+  logIO s I "XMPP" "connecting..."
   xmpp <- xmppConnect cXmppHost cXmppNick cXmppPswd
-  logIO N "XMPP" "connected"
+  logIO s I "XMPP" "connected"
   pure env { envXmpp = xmpp }
 
 runBots :: AppEnv -> ToConnect -> IO ()
