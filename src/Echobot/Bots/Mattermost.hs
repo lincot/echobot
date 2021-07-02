@@ -5,7 +5,6 @@ module Echobot.Bots.Mattermost
   )
 where
 
-import qualified Data.HashMap.Strict           as HMS
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
 import           Echobot.Log                    ( log )
@@ -47,7 +46,7 @@ getMessagesMM = do
         $ mmGetPostsForChannel chanId defaultPostQuery mm
       (pure . catMaybes =<<)
         $ forM (reverse . toList $ postsOrder posts)
-        $ \pId -> case HMS.lookup pId $ postsPosts posts of
+        $ \pId -> case postsPosts posts !? pId of
             Nothing -> do
               log D "Mattermost" "could not find a post by PostId"
               pure Nothing

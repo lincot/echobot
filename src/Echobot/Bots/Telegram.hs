@@ -53,7 +53,7 @@ getUpdates = do
     <> "timeout" =: (10 :: Int)
   case r of
     Left e -> do
-      log W "Telegram" $ "could not get updates\n" <> e
+      log E "Telegram" $ "could not get updates\n" <> e
       getUpdates
     Right upds -> case viaNonEmpty last upds of
       Just upd -> do
@@ -77,6 +77,6 @@ sendMessageTg chat msg = do
     <> "text"    =: msg
   case r of
     Left e -> do
-      log W "Telegram" $ "could not deliver message\n" <> e
+      log E "Telegram" $ "could not deliver message\n" <> e
       sendMessageTg chat msg
-    Right TgMessage {} -> pass
+    Right TgMessage{} -> pass

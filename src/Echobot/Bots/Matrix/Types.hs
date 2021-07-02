@@ -12,38 +12,34 @@ module Echobot.Bots.Matrix.Types
 where
 
 import           Data.Aeson
-import qualified Data.HashMap.Lazy             as HML
 
 data SyncState = SyncState
   { next_batch :: Text
-  , rooms      :: Rooms
+  , rooms      :: Maybe Rooms
   } deriving (Show, Generic, FromJSON)
 
 newtype Rooms = Rooms
-  { joinedRooms :: HashMap Text JoinedRoom
+  { joinedRooms :: Maybe (HashMap Text JoinedRoom)
   } deriving stock Show
 
 instance FromJSON Rooms where
   parseJSON (Object v) = Rooms
-    <$> v .: "join"
+    <$> v .:? "join"
   parseJSON _          = mzero
 
 newtype JoinedRoom = JoinedRoom
-  { timeline :: Timeline
+  { timeline :: Maybe Timeline
   } deriving stock (Show, Generic)
     deriving anyclass FromJSON
 
-data Timeline = Timeline
-  { events     :: [RoomEvent]
-  , limited    :: Bool
-  , prev_batch :: Text
-  } deriving (Show, Generic, FromJSON)
+newtype Timeline = Timeline
+  { events     :: Maybe [RoomEvent]
+  } deriving stock (Show, Generic)
+    deriving anyclass FromJSON
 
 data RoomEvent = RoomEvent
-  { content   :: Object
-  , eventType :: Text
-  , event_id  :: Text
-  , sender    :: Text
+  { content :: Object
+  , eventType, event_id, sender :: Text
   } deriving Show
 
 instance FromJSON RoomEvent where
@@ -62,11 +58,18 @@ data MessageEvent = MessageEvent
 data EventResponse
   = NoResponse
   | ResponseSuccess { eventId :: Text }
-  | ResponseFailure { errcode :: Text, responseError :: Text }
+  | ResponseFailure { errcode        :: Text
+                    , responseError  :: Maybe Text
+                    , retry_after_ms :: Maybe Int
+                    }
   deriving Show
 
 instance FromJSON EventResponse where
-  parseJSON (Object o) = if HML.member "event_id" o
-    then ResponseSuccess <$> o .: "event_id"
-    else ResponseFailure <$> o .: "errcode" <*> o .: "error"
+  parseJSON (Object o) = if "event_id" `member` o
+    then ResponseSuccess
+      <$> o .: "event_id"
+    else ResponseFailure
+      <$> o .:  "errcode"
+      <*> o .:? "error"
+      <*> o .:? "retry_after_ms"
   parseJSON _ = pure NoResponse

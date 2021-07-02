@@ -3,4 +3,4 @@ module Echobot.Types.Dflts
   )
 where
 
-newtype Dflts = Dflts { defaultRepeatCount :: Int }
+newtype Dflts = Dflts { userRepeatCount :: Int }

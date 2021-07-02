@@ -2,8 +2,13 @@ module Echobot.Types.Users
   ( BotMode(..)
   , User(..)
   , Users
+  , newUser
   )
 where
+
+import           Echobot.App.Env                ( grab )
+import           Echobot.App.Monad              ( App )
+import           Echobot.Types.Dflts            ( Dflts(..) )
 
 data BotMode = NormalMode | AwaitingRepeatCountMode
 
@@ -15,3 +20,8 @@ data User = User
   }
 
 type Users u = IORef (HashMap u User)
+
+newUser :: BotMode -> App User
+newUser userMode = do
+  Dflts {..} <- grab
+  pure User {..}

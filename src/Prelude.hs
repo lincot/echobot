@@ -1,1 +1,8 @@
-module Prelude (module Relude) where import Relude
+module Prelude
+  ( module Relude
+  , module Relude.Extra.Map
+  )
+where
+
+import           Relude
+import           Relude.Extra.Map

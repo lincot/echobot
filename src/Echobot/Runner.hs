@@ -1,5 +1,3 @@
-{-# LANGUAGE FlexibleContexts #-}
-
 module Echobot.Runner
   ( botRunner
   )
@@ -13,10 +11,10 @@ import           Echobot.Db                     ( getUser
 import           Echobot.Log                    ( log )
 import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Bot              ( Bot(..) )
-import           Echobot.Types.Dflts            ( Dflts(..) )
 import           Echobot.Types.Msgs             ( Msgs(..) )
 import           Echobot.Types.Users            ( BotMode(..)
                                                 , User(..)
+                                                , newUser
                                                 )
 import           UnliftIO.Exception             ( onException )
 
@@ -37,33 +35,44 @@ runBot bot@Bot {..} = forever $ mapM
 react :: (Eq u, Hashable u, ToText u) =>
   Bot c u -> c -> u -> Text -> App ()
 react bot@Bot {..} chan uid msg = do
-  musr <- getUser users uid
-  case musr of
-    Just usr -> case userMode usr of
-      AwaitingRepeatCountMode -> reactRepeatCount bot chan uid usr msg
-      NormalMode              -> reactNormal      bot chan uid usr msg
+  muser <- getUser users uid
+  case muser of
+    Just user -> case userMode user of
+      AwaitingRepeatCountMode -> reactRepeatCount bot chan uid user msg
+      NormalMode              -> reactNormal      bot chan uid user msg
     Nothing -> do
-      Dflts {..} <- grab
-      let usr =
-            User { userMode = NormalMode, userRepeatCount = defaultRepeatCount }
-      putUser users uid usr
-      reactNormal bot chan uid usr msg
+      log D botName $ toText uid <> " is absent in db"
+      reactNew bot chan uid msg
+
+reactNew :: (Eq u, Hashable u) =>
+  Bot c u -> c -> u -> Text -> App ()
+reactNew bot chan _ msg | msg `elem` ["/help", "/start"] = do
+  Msgs {..} <- grab
+  sendMessage' bot chan helpMsg
+reactNew bot@Bot {..} chan uid "/repeat" = do
+  Msgs {..} <- grab
+  user@User {..} <- newUser AwaitingRepeatCountMode
+  sendMessage' bot chan $ repeat1Msg <> show userRepeatCount <> repeat2Msg
+  putUser users uid user
+reactNew bot chan _ msg = do
+  User {..} <- newUser NormalMode
+  replicateM_ userRepeatCount $ sendMessage' bot chan msg
 
 reactNormal :: (Eq u, Hashable u) =>
   Bot c u -> c -> u -> User -> Text -> App ()
-reactNormal bot@Bot {..} chan uid usr "/repeat" = do
-  Msgs {..} <- grab
-  sendMessage' bot chan $ repeat1Msg <> show (userRepeatCount usr) <> repeat2Msg
-  putUser users uid usr { userMode = AwaitingRepeatCountMode }
-reactNormal bot chan _ _ msg | msg == "/help" || msg == "/start" = do
+reactNormal bot chan _ _ msg | msg `elem` ["/help", "/start"] = do
   Msgs {..} <- grab
   sendMessage' bot chan helpMsg
-reactNormal bot chan _ usr msg =
-  replicateM_ (userRepeatCount usr) $ sendMessage' bot chan msg
+reactNormal bot@Bot {..} chan uid user@User {..} "/repeat" = do
+  Msgs {..} <- grab
+  sendMessage' bot chan $ repeat1Msg <> show userRepeatCount <> repeat2Msg
+  putUser users uid user { userMode = AwaitingRepeatCountMode }
+reactNormal bot chan _ User {..} msg =
+  replicateM_ userRepeatCount $ sendMessage' bot chan msg
 
 reactRepeatCount :: (Eq u, Hashable u, ToText u) =>
   Bot c u -> c -> u -> User -> Text -> App ()
-reactRepeatCount bot@Bot {..} chan uid usr msg =
+reactRepeatCount bot@Bot {..} chan uid user msg =
   case readMaybe $ toString msg of
     Just c -> if
       | c < 0 -> invalid "a negative"
@@ -71,7 +80,7 @@ reactRepeatCount bot@Bot {..} chan uid usr msg =
       | otherwise -> do
         log I botName $ "changing repeat count to " <> show c
           <> " for " <> toText uid
-        putUser users uid usr { userRepeatCount = c, userMode = NormalMode }
+        putUser users uid user { userRepeatCount = c, userMode = NormalMode }
     Nothing -> invalid "not a"
  where
   invalid n = do

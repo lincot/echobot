@@ -86,7 +86,7 @@ xmppCodec = XmppC
 
 dfltsCodec :: TomlCodec Dflts
 dfltsCodec = Dflts
-  <$> Toml.int "repeatCount" .= defaultRepeatCount
+  <$> Toml.int "repeatCount" .= userRepeatCount
 
 msgsCodec :: TomlCodec Msgs
 msgsCodec = Msgs

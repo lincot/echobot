@@ -54,7 +54,7 @@ parseLine :: Text -> (Text, Text, Text, Text)
 parseLine (T.stripPrefix "PING " -> Just suf) = ("", "PING", "", T.init suf)
 parseLine line = (src, cmd, target, msg)
  where
-  (src   , xs) = T.break p line
+  (src   , xs) = T.break p $ T.tail line
   (cmd   , ys) = T.break p $ T.tail xs
   (target, ms) = T.break p $ T.tail ys
   msg          = T.tail . T.tail . T.init $ ms

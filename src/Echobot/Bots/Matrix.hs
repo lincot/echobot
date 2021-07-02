@@ -7,7 +7,6 @@ import           Data.Aeson                     ( parseJSON )
 import           Data.Aeson.Types               ( parseEither
                                                 , Value(String)
                                                 )
-import qualified Data.HashMap.Lazy             as HML
 import           Echobot.App.Monad              ( App )
 import           Echobot.App.Env                ( grab )
 import           Echobot.Bots.Matrix.Types      ( SyncState(..)
@@ -23,11 +22,13 @@ import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Bot              ( Bot(..) )
 import           Echobot.Types.Matrix           ( Matrix(..) )
 import           Network.HTTP.Req
+import           UnliftIO.Async                 ( concurrently_ )
+import           UnliftIO.Concurrent            ( threadDelay )
 
 matrixBot :: App (Bot (Text, Text) Text)
 matrixBot = Bot getMessagesM sendMessageM pass "Matrix" <$> newIORef mempty
 
-sync :: App Rooms
+sync :: App (Maybe Rooms)
 sync = do
   Matrix {..} <- grab
   since       <- readIORef mSince
@@ -44,19 +45,22 @@ sync = do
 getMessagesM :: App [((Text, Text), Text, Text)]
 getMessagesM = do
   Matrix {..} <- grab
-  rooms'      <- sync
-  let a :: HashMap Text [RoomEvent]
-      a = filter (\RoomEvent{..}
-        -> eventType == "m.room.message"
-        && sender /= mName
-        && HML.lookup "msgtype" content == Just "m.text"
-                 ) . events . timeline <$> joinedRooms rooms'
-      b :: [((Text, Text), Text, Maybe Value)]
-      b = HML.toList a >>= (\(roomId, events') -> events' <&> (\RoomEvent{..}
-        -> ((roomId, event_id), sender, HML.lookup "body" content)))
-  pure [ ((roomId, eId), sender', msg)
-       | ((roomId, eId), sender', Just (String msg))
-       <- b ]
+  mrooms      <- sync
+  case mrooms of
+    Just (Rooms (Just hm)) -> do
+      let notMyTextMessage = (\RoomEvent{..}
+            -> eventType            == "m.room.message"
+            && sender               /= mName
+            && content !? "msgtype" == Just "m.text")
+          events'' = [ (roomId, filter notMyTextMessage events')
+                     | (roomId, JoinedRoom (Just (Timeline (Just events'))))
+                     <- toPairs hm ]
+          transform = (>>= (\(roomId, events') -> events' <&> (\RoomEvent{..}
+                    -> ((roomId, event_id), sender, content !? "body"))))
+      pure [ ((roomId, eId), sender', msg)
+           | ((roomId, eId), sender', Just (String msg))
+           <- transform events'' ]
+    _ -> getMessagesM
 
 sendMessageM :: (Text, Text) -> Text -> App ()
 sendMessageM (roomId, msgId) msg = do
@@ -68,13 +72,17 @@ sendMessageM (roomId, msgId) msg = do
   rb <- responseBody <$> req PUT url reqBody jsonResponse params
   log D "Matrix" $ "got\n" <> show rb
   case parseEither parseJSON rb of
-    Right ResponseSuccess {}    -> pass
-    Right (ResponseFailure _ e) -> again e
-    Right NoResponse            -> again ""
-    Left  e                     -> again $ toText e
+    Right ResponseSuccess{}          -> pass
+    Right (ResponseFailure e me mms) -> again e me mms
+    Right NoResponse                 -> again "" Nothing Nothing
+    Left  e                          -> again (toText e) Nothing Nothing
  where
-  again e = do
-    log W "Matrix" $ "could not deliver message\n" <> e
+  again e me mms = do
+    log E "Matrix" $ "could not deliver message:" <> e <> maybe "" ("\n" <>) me
+    case mms of
+      Nothing -> pass
+      Just ms -> concurrently_ (threadDelay $ 1000 * ms)
+                               (log W "Matrix" $ "waiting " <> show ms <> " ms")
     sendMessageM (roomId, msgId) msg
 
 apiBase :: Text -> Url 'Https
