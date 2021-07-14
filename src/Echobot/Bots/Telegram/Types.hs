@@ -6,8 +6,7 @@ module Echobot.Bots.Telegram.Types
   , TgMessage(..)
   , TgChat(..)
   , TgUser(..)
-  )
-where
+  ) where
 
 import           Data.Aeson
 

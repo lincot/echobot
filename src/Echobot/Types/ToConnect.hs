@@ -1,9 +1,8 @@
 module Echobot.Types.ToConnect
   ( ToConnect(..)
-  )
-where
+  ) where
 
 data ToConnect = ToConnect
-  { connectIrc, connectMatrix, connectMattermost
-  , connectTelegram, connectXmpp :: !Bool
+  { connectIrc, connectMatrix, connectMattermost, connectTelegram, connectXmpp
+      :: !Bool
   }

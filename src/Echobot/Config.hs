@@ -1,20 +1,19 @@
 module Echobot.Config
   ( Config(..)
   , loadConfig
-  )
-where
+  ) where
 
 import           Echobot.Types.Dflts            ( Dflts(..) )
-import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Irc              ( IrcC(..) )
-import           Echobot.Types.Msgs             ( Msgs(..) )
 import           Echobot.Types.Matrix           ( MatrixC(..) )
 import           Echobot.Types.Mattermost       ( MattermostC(..) )
+import           Echobot.Types.Msgs             ( Msgs(..) )
+import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Telegram         ( TelegramC(..) )
 import           Echobot.Types.ToConnect        ( ToConnect(..) )
 import           Echobot.Types.Xmpp             ( XmppC(..) )
-import           Toml                           ( TomlCodec
-                                                , (.=)
+import           Toml                           ( (.=)
+                                                , TomlCodec
                                                 )
 import qualified Toml
 
@@ -52,37 +51,37 @@ connectCodec = ToConnect
 
 ircCodec :: TomlCodec IrcC
 ircCodec = IrcC
-  <$> Toml.string "host" .= cIrcHost
-  <*> Toml.string "port" .= cIrcPort
-  <*> Toml.text   "chan" .= cIrcChan
-  <*> Toml.text   "nick" .= cIrcNick
-  <*> Toml.text   "name" .= cIrcName
+  <$> Toml.string "host" .= ircHost
+  <*> Toml.string "port" .= ircPort
+  <*> Toml.text   "chan" .= ircChan
+  <*> Toml.text   "nick" .= ircNick
+  <*> Toml.text   "name" .= ircName
 
 matrixCodec :: TomlCodec MatrixC
 matrixCodec = MatrixC
-  <$> Toml.text "token"      .= cMToken
-  <*> Toml.text "name"       .= cMName
-  <*> Toml.text "homeserver" .= cMHomeserver
-  <*> Toml.text "since"      .= cMSince
+  <$> Toml.text "token"      .= maToken
+  <*> Toml.text "name"       .= maName
+  <*> Toml.text "homeserver" .= maHomeserver
+  <*> Toml.text "since"      .= maSince
 
 mmCodec :: TomlCodec MattermostC
 mmCodec = MattermostC
-  <$> Toml.text "host"     .= cMmHost
-  <*> Toml.int  "port"     .= cMmPort
-  <*> Toml.text "path"     .= cMmPath
-  <*> Toml.text "nick"     .= cMmNick
-  <*> Toml.text "password" .= cMmPswd
+  <$> Toml.text "host"     .= mmHost
+  <*> Toml.int  "port"     .= mmPort
+  <*> Toml.text "path"     .= mmPath
+  <*> Toml.text "nick"     .= mmNick
+  <*> Toml.text "password" .= mmPswd
 
 tgCodec :: TomlCodec TelegramC
 tgCodec = TelegramC
-  <$> Toml.text "token"  .= cTgToken
-  <*> Toml.int  "offset" .= cTgOffset
+  <$> Toml.text "token"  .= tgToken
+  <*> Toml.int  "offset" .= tgOffset
 
 xmppCodec :: TomlCodec XmppC
 xmppCodec = XmppC
-  <$> Toml.string "host"     .= cXmppHost
-  <*> Toml.text   "nick"     .= cXmppNick
-  <*> Toml.text   "password" .= cXmppPswd
+  <$> Toml.string "host"     .= xmppHost
+  <*> Toml.text   "nick"     .= xmppNick
+  <*> Toml.text   "password" .= xmppPswd
 
 dfltsCodec :: TomlCodec Dflts
 dfltsCodec = Dflts

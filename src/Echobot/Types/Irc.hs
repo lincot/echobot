@@ -1,8 +1,7 @@
 module Echobot.Types.Irc
   ( Irc(..)
   , IrcC(..)
-  )
-where
+  ) where
 
 data Irc = Irc
   { ircSocket :: !Handle
@@ -10,6 +9,6 @@ data Irc = Irc
   }
 
 data IrcC = IrcC
-  { cIrcHost, cIrcPort :: !String
-  , cIrcChan, cIrcNick, cIrcName :: !Text
+  { ircHost, ircPort          :: !String
+  , ircChan, ircNick, ircName :: !Text
   }

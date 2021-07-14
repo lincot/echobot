@@ -1,34 +1,27 @@
-{-# OPTIONS -Wno-orphans #-}
-
 module Echobot.Bots.Mattermost
   ( mattermostBot
-  )
-where
+  , mattermostConnect
+  ) where
 
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
 import           Echobot.Log                    ( log )
-import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Bot              ( Bot(..) )
-import           Network.Mattermost.Endpoints   ( defaultPostQuery
-                                                , mmCreatePost
-                                                , mmGetChannelsForUser
-                                                , mmGetPostsForChannel
-                                                , mmGetUsersTeams
-                                                )
-import           Network.Mattermost.Types       ( ChannelId
-                                                , UserId
-                                                , RawPost(..)
-                                                , UserParam(UserMe)
-                                                , getId
-                                                , Post(..)
-                                                , Posts(..)
-                                                , unsafeUserText
-                                                , Id(..)
-                                                , UserId(..)
-                                                )
+import           Echobot.Types.Severity         ( Severity(..) )
+import           Network.Mattermost.Endpoints
+import           Network.Mattermost.Types
+import           Network.Mattermost.Util
 
 deriving via Text instance ToText UserId
+
+mattermostConnect :: Text -> Int -> Text -> Text -> Text -> IO Session
+mattermostConnect host port path nick pswd = do
+  cd <- initConnectionData host
+                           port
+                           path
+                           (ConnectHTTPS True)
+                           defaultConnectionPoolConfig
+  fst <$> (hoistE =<< mmLogin cd (Login nick pswd))
 
 mattermostBot :: App (Bot ChannelId UserId)
 mattermostBot =
@@ -60,10 +53,9 @@ getMessagesMM = do
 sendMessageMM :: ChannelId -> Text -> App ()
 sendMessageMM chanId msg = do
   mm <- grab
-  let post = RawPost
-        { rawPostChannelId = chanId
-        , rawPostMessage   = msg
-        , rawPostFileIds   = mempty
-        , rawPostRootId    = Nothing
-        }
+  let post = RawPost { rawPostChannelId = chanId
+                     , rawPostMessage   = msg
+                     , rawPostFileIds   = mempty
+                     , rawPostRootId    = Nothing
+                     }
   liftIO $ void $ mmCreatePost post mm

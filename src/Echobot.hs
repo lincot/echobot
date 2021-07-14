@@ -2,29 +2,29 @@
 
 module Echobot
   ( main
-  )
-where
+  ) where
 
 import           Data.List                      ( foldr1 )
 import           Echobot.App.Env                ( Env(..) )
 import           Echobot.App.Monad              ( AppEnv
                                                 , runApp
                                                 )
-import           Echobot.Bots.Irc               ( ircBot )
+import           Echobot.Bots.Irc               ( ircBot
+                                                , ircConnect
+                                                )
 import           Echobot.Bots.Matrix            ( matrixBot )
-import           Echobot.Bots.Mattermost        ( mattermostBot )
+import           Echobot.Bots.Mattermost        ( mattermostBot
+                                                , mattermostConnect
+                                                )
 import           Echobot.Bots.Telegram          ( telegramBot )
-import           Echobot.Bots.Xmpp              ( xmppBot )
+import           Echobot.Bots.Xmpp              ( xmppBot
+                                                , xmppConnect
+                                                )
 import           Echobot.Config                 ( Config(..)
                                                 , loadConfig
                                                 )
-import           Echobot.Connectors.Irc         ( ircConnect )
-import           Echobot.Connectors.Mattermost  ( mattermostConnect )
-import           Echobot.Connectors.Xmpp        ( xmppConnect )
-import           Echobot.Runner                 ( botRunner )
 import           Echobot.Log                    ( logIO )
-import           Echobot.Types.Severity         ( Severity(..) )
-import           Echobot.Types.ToConnect        ( ToConnect(..) )
+import           Echobot.Runner                 ( botRunner )
 import           Echobot.Types.Irc              ( Irc(..)
                                                 , IrcC(..)
                                                 )
@@ -32,18 +32,20 @@ import           Echobot.Types.Matrix           ( Matrix(..)
                                                 , MatrixC(..)
                                                 )
 import           Echobot.Types.Mattermost       ( MattermostC(..) )
+import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Telegram         ( Telegram(..)
                                                 , TelegramC(..)
                                                 )
+import           Echobot.Types.ToConnect        ( ToConnect(..) )
 import           Echobot.Types.Xmpp             ( XmppC(..) )
 import           UnliftIO.Async                 ( Concurrently(..)
                                                 , runConcurrently
                                                 )
 
 mkAppEnv :: Config -> IO AppEnv
-mkAppEnv Config { cConnect = ToConnect {..}, ..} = foldr1
+mkAppEnv Config {..} = foldr1
   (>=>)
-  ((`snd` cSeverity) <$> filter fst
+  ((`snd` cSeverity) <$> filter (`fst` cConnect)
     [ (connectIrc       , addIrc        cIrc)
     , (connectMatrix    , addMatrix     cMatrix)
     , (connectMattermost, addMattermost cMattermost)
@@ -56,33 +58,33 @@ mkAppEnv Config { cConnect = ToConnect {..}, ..} = foldr1
 addIrc :: IrcC -> Severity -> Env m -> IO (Env m)
 addIrc IrcC {..} s env = do
   logIO s I "IRC" "connecting..."
-  h <- ircConnect cIrcHost cIrcPort cIrcChan cIrcNick cIrcName
+  ircSocket <- ircConnect ircHost ircPort ircChan ircNick ircName
   logIO s I "IRC" "connected"
-  pure env { envIrc = Irc h cIrcChan }
+  pure env { envIrc = Irc {..} }
 
 addMatrix :: MatrixC -> Severity -> Env m -> IO (Env m)
 addMatrix MatrixC {..} s env = do
-  since <- newIORef $ if cMSince == "" then Nothing else Just cMSince
+  maSinceR <- newIORef $ if maSince == "" then Nothing else Just maSince
   logIO s I "Matrix" "ready to go"
-  pure env { envMatrix = Matrix cMToken cMName cMHomeserver since }
+  pure env { envMatrix = Matrix {..} }
 
 addMattermost :: MattermostC -> Severity -> Env m -> IO (Env m)
 addMattermost MattermostC {..} s env = do
   logIO s I "Mattermost" "connecting..."
-  mm <- mattermostConnect cMmHost cMmPort cMmPath cMmNick cMmPswd
+  mm <- mattermostConnect mmHost mmPort mmPath mmNick mmPswd
   logIO s I "Mattermost" "connected"
   pure env { envMattermost = mm }
 
 addTelegram :: TelegramC -> Severity -> Env m -> IO (Env m)
 addTelegram TelegramC {..} s env = do
-  o <- newIORef cTgOffset
+  tgOffsetR <- newIORef tgOffset
   logIO s I "Telegram" "ready to go"
-  pure env { envTelegram = Telegram cTgToken o }
+  pure env { envTelegram = Telegram {..} }
 
 addXmpp :: XmppC -> Severity -> Env m -> IO (Env m)
 addXmpp XmppC {..} s env = do
   logIO s I "XMPP" "connecting..."
-  xmpp <- xmppConnect cXmppHost cXmppNick cXmppPswd
+  xmpp <- xmppConnect xmppHost xmppNick xmppPswd
   logIO s I "XMPP" "connected"
   pure env { envXmpp = xmpp }
 

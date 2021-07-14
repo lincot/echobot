@@ -1,15 +1,14 @@
 module Echobot.Types.Telegram
   ( Telegram(..)
   , TelegramC(..)
-  )
-where
+  ) where
 
 data Telegram = Telegram
-  { tgToken  :: !Text
-  , tgOffset :: !(IORef Int)
+  { tgToken   :: !Text
+  , tgOffsetR :: !(IORef Int)
   }
 
 data TelegramC = TelegramC
-  { cTgToken  :: !Text
-  , cTgOffset :: !Int
+  { tgToken  :: !Text
+  , tgOffset :: !Int
   }

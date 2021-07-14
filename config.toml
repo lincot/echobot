@@ -21,7 +21,7 @@ severity = "I"
   homeserver = "matrix.org"
   # "since" param to make the first sync
   # can be next_batch of a previous sync
-  # if empty, full sync will be made
+  # if empty, 5 events will be gotten from each room
   since = ""
 
 [Mattermost]

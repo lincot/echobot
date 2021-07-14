@@ -1,6 +1,7 @@
 module Echobot.Types.Msgs
   ( Msgs(..)
-  )
-where
+  ) where
 
-data Msgs = Msgs { helpMsg, repeat1Msg, repeat2Msg, invalidMsg :: !Text }
+data Msgs = Msgs
+  { helpMsg, repeat1Msg, repeat2Msg, invalidMsg :: !Text
+  }

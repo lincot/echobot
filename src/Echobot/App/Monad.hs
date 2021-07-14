@@ -1,17 +1,12 @@
-{-# LANGUAGE InstanceSigs #-}
-
 module Echobot.App.Monad
   ( App(..)
   , AppEnv
   , runApp
-  )
-where
+  ) where
 
 import           Control.Monad.IO.Unlift        ( MonadUnliftIO )
 import           Echobot.App.Env                ( Env )
-import           Network.HTTP.Req               ( MonadHttp(..)
-                                                , HttpException(..)
-                                                )
+import           Network.HTTP.Req               ( MonadHttp(..) )
 import           UnliftIO.Exception             ( throwIO )
 
 type AppEnv = Env App
@@ -22,7 +17,6 @@ newtype App a = App
                      , MonadReader AppEnv, MonadIO, MonadUnliftIO)
 
 instance MonadHttp App where
-  handleHttpException :: HttpException -> App a
   handleHttpException = throwIO
   {-# INLINE handleHttpException #-}
 

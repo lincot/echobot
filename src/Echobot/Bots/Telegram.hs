@@ -1,25 +1,22 @@
-{-# OPTIONS -Wno-orphans #-}
-
 module Echobot.Bots.Telegram
   ( telegramBot
-  )
-where
+  ) where
 
 import           Data.Aeson                     ( FromJSON
                                                 , parseJSON
                                                 )
 import           Data.Aeson.Types               ( parseEither )
-import           Echobot.App.Monad              ( App )
 import           Echobot.App.Env                ( grab )
-import           Echobot.Bots.Telegram.Types    ( TgResponse(TgResponse)
-                                                , TgUpdate(TgUpdate, update_id)
+import           Echobot.App.Monad              ( App )
+import           Echobot.Bots.Telegram.Types    ( TgChat(TgChat)
                                                 , TgMessage(TgMessage)
-                                                , TgChat(TgChat)
+                                                , TgResponse(TgResponse)
+                                                , TgUpdate(TgUpdate, update_id)
                                                 , TgUser(TgUser)
                                                 )
 import           Echobot.Log                    ( log )
-import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Bot              ( Bot(..) )
+import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Telegram         ( Telegram(..) )
 import           Network.HTTP.Req
 
@@ -47,7 +44,7 @@ reqTg token method params = do
 getUpdates :: App [TgUpdate]
 getUpdates = do
   Telegram {..} <- grab
-  offset        <- readIORef tgOffset
+  offset        <- readIORef tgOffsetR
   r <- reqTg tgToken "getUpdates"
     $  "offset"  =: offset
     <> "timeout" =: (10 :: Int)
@@ -57,7 +54,7 @@ getUpdates = do
       getUpdates
     Right upds -> case viaNonEmpty last upds of
       Just upd -> do
-        writeIORef tgOffset $ update_id upd + 1
+        writeIORef tgOffsetR $ update_id upd + 1
         pure upds
       Nothing  -> getUpdates
 

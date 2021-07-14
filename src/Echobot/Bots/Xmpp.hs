@@ -1,30 +1,31 @@
-{-# OPTIONS -Wno-orphans   #-}
-{-# LANGUAGE TupleSections #-}
-
 module Echobot.Bots.Xmpp
   ( xmppBot
-  )
-where
+  , xmppConnect
+  ) where
 
-import           Network.Xmpp.IM                ( getIM
-                                                , withIM
-                                                , instantMessage
-                                                , InstantMessage(..)
-                                                , MessageBody(..)
-                                                )
-import           Network.Xmpp                   ( Jid
-                                                , getMessage
-                                                , jidToText
-                                                , message
-                                                , Message(..)
-                                                )
-import qualified Network.Xmpp                  as Xmpp
-                                                ( sendMessage )
+import           Data.Default                   ( def )
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
 import           Echobot.Log                    ( log )
-import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Bot              ( Bot(..) )
+import           Echobot.Types.Severity         ( Severity(..) )
+import           Network.Xmpp                   ( Jid
+                                                , Message(..)
+                                                , Session
+                                                , getMessage
+                                                , jidToText
+                                                , message
+                                                , scramSha1
+                                                , session
+                                                )
+import qualified Network.Xmpp                  as Xmpp
+                                                ( sendMessage )
+import           Network.Xmpp.IM                ( InstantMessage(..)
+                                                , MessageBody(..)
+                                                , getIM
+                                                , instantMessage
+                                                , withIM
+                                                )
 
 instance ToText Jid where
   toText = jidToText
@@ -34,13 +35,20 @@ instance Hashable Jid where
   hashWithSalt salt = hashWithSalt salt . toText
   {-# INLINE hashWithSalt #-}
 
+xmppConnect :: String -> Text -> Text -> IO Session
+xmppConnect host nick pswd = do
+  ees <- session host (Just (const [scramSha1 nick Nothing pswd], Nothing)) def
+  case ees of
+    Right s -> pure s
+    Left  e -> error $ "[XMPP] " <> show e
+
 xmppBot :: App (Bot Text Jid)
 xmppBot = Bot getMessagesXmpp sendMessageXmpp pass "XMPP" <$> newIORef mempty
 
 getMessagesXmpp :: App [(Text, Jid, Text)]
 getMessagesXmpp = do
-  xmpp <- grab
-  message'  <- liftIO $ getMessage xmpp
+  xmpp     <- grab
+  message' <- liftIO $ getMessage xmpp
   case messageFrom message' of
     Just sender -> case getIM message' of
       Just im -> pure $ ("", sender, ) . bodyContent <$> imBody im

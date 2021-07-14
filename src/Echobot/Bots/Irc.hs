@@ -1,8 +1,9 @@
 module Echobot.Bots.Irc
   ( ircBot
-  )
-where
+  , ircConnect
+  ) where
 
+import           Control.Exception              ( bracketOnError )
 import qualified Data.Text                     as T
 import           Data.Text.IO                   ( hGetLine
                                                 , hPutStrLn
@@ -10,10 +11,29 @@ import           Data.Text.IO                   ( hGetLine
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
 import           Echobot.Log                    ( log )
-import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Bot              ( Bot(..) )
 import           Echobot.Types.Irc              ( Irc(..) )
+import           Echobot.Types.Severity         ( Severity(..) )
+import           Network.Socket
 import           UnliftIO.IO                    ( hClose )
+
+handleConnect :: String -> String -> IO Handle
+handleConnect host port = do
+  addr : _ <- getAddrInfo Nothing (Just host) (Just port)
+  sock     <- socket (addrFamily addr) (addrSocketType addr) (addrProtocol addr)
+  connect sock $ addrAddress addr
+  socketToHandle sock ReadWriteMode
+
+chanConnect :: Text -> Text -> Text -> Handle -> IO ()
+chanConnect chan nick name h = mapM_
+  (hPutStrLn h)
+  ["NICK " <> nick, "USER " <> nick <> " 0 * :" <> name, "JOIN " <> chan]
+
+ircConnect :: String -> String -> Text -> Text -> Text -> IO Handle
+ircConnect host port chan nick name = bracketOnError
+  (handleConnect host port)
+  hClose
+  ((*>) <$> chanConnect chan nick name <*> pure)
 
 ircBot :: App (Bot Text Text)
 ircBot = Bot getMessagesIrc sendMessageIrc disableIrc "IRC" <$> newIORef mempty
@@ -54,8 +74,8 @@ parseLine :: Text -> (Text, Text, Text, Text)
 parseLine (T.stripPrefix "PING " -> Just suf) = ("", "PING", "", T.init suf)
 parseLine line = (src, cmd, target, msg)
  where
-  (src   , xs) = T.break p $ T.tail line
-  (cmd   , ys) = T.break p $ T.tail xs
-  (target, ms) = T.break p $ T.tail ys
+  (src   , xs) = spl line
+  (cmd   , ys) = spl xs
+  (target, ms) = spl ys
   msg          = T.tail . T.tail . T.init $ ms
-  p            = (== ' ')
+  spl          = T.break (== ' ') . T.tail

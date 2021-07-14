@@ -1,14 +1,13 @@
 module Echobot.Types.Matrix
   ( Matrix(..)
   , MatrixC(..)
-  )
-where
+  ) where
 
 data Matrix = Matrix
-  { mToken, mName, mHomeserver :: !Text
-  , mSince :: !(IORef (Maybe Text))
+  { maToken, maName, maHomeserver :: !Text
+  , maSinceR                      :: !(IORef (Maybe Text))
   }
 
 data MatrixC = MatrixC
-  { cMToken, cMName, cMHomeserver, cMSince :: !Text
+  { maToken, maName, maHomeserver, maSince :: !Text
   }

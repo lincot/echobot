@@ -8,15 +8,14 @@ module Echobot.App.Env
   ( Env(..)
   , Has(..)
   , grab
-  )
-where
+  ) where
 
 import           Echobot.Types.Dflts            ( Dflts )
-import           Echobot.Types.Msgs             ( Msgs )
-import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Irc              ( Irc )
 import           Echobot.Types.Matrix           ( Matrix )
 import           Echobot.Types.Mattermost       ( Mattermost )
+import           Echobot.Types.Msgs             ( Msgs )
+import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Telegram         ( Telegram )
 import           Echobot.Types.Xmpp             ( Xmpp )
 

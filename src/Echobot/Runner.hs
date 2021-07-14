@@ -1,18 +1,18 @@
 module Echobot.Runner
   ( botRunner
-  )
-where
+  ) where
 
+import qualified Data.Text                     as T
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
 import           Echobot.Db                     ( getUser
                                                 , putUser
                                                 )
 import           Echobot.Log                    ( log )
-import           Echobot.Types.Severity         ( Severity(..) )
 import           Echobot.Types.Bot              ( Bot(..) )
 import           Echobot.Types.Msgs             ( Msgs(..) )
-import           Echobot.Types.Users            ( BotMode(..)
+import           Echobot.Types.Severity         ( Severity(..) )
+import           Echobot.Types.User             ( BotMode(..)
                                                 , User(..)
                                                 , newUser
                                                 )
@@ -28,7 +28,8 @@ runBot :: (Eq u, Hashable u, ToText u) =>
   Bot c u -> App ()
 runBot bot@Bot {..} = forever $ mapM
   (\(chan, uid, msg) -> do
-    log I botName $ "received message from " <> toText uid <> "\n" <> msg
+    log I botName $ "received message from " <> (toText uid `T.snoc` '\n')
+      <> msg
     react bot chan uid msg
   ) =<< getMessages
 

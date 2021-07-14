@@ -1,8 +1,7 @@
 module Prelude
   ( module Relude
   , module Relude.Extra.Map
-  )
-where
+  ) where
 
 import           Relude
 import           Relude.Extra.Map

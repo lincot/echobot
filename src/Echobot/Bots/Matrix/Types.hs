@@ -6,10 +6,9 @@ module Echobot.Bots.Matrix.Types
   , JoinedRoom(..)
   , Timeline(..)
   , RoomEvent(..)
-  , MessageEvent(..)
+  , Content(..)
   , EventResponse(..)
-  )
-where
+  ) where
 
 import           Data.Aeson
 
@@ -38,7 +37,7 @@ newtype Timeline = Timeline
     deriving anyclass FromJSON
 
 data RoomEvent = RoomEvent
-  { content :: Object
+  { content                     :: Content
   , eventType, event_id, sender :: Text
   } deriving Show
 
@@ -50,10 +49,19 @@ instance FromJSON RoomEvent where
     <*> v .: "sender"
   parseJSON _ = mzero
 
-data MessageEvent = MessageEvent
+data Content = MessageContent
   { msgtype :: Text
   , body    :: Text
-  } deriving (Show, Generic, ToJSON)
+  } | Content Object
+  deriving (Show, Generic, ToJSON)
+
+instance FromJSON Content where
+  parseJSON (Object v) = if "msgtype" `member` v
+    then MessageContent
+      <$> v .: "msgtype"
+      <*> v .: "body"
+    else pure $ Content v
+  parseJSON _ = mzero
 
 data EventResponse
   = NoResponse
@@ -65,11 +73,11 @@ data EventResponse
   deriving Show
 
 instance FromJSON EventResponse where
-  parseJSON (Object o) = if "event_id" `member` o
+  parseJSON (Object v) = if "event_id" `member` v
     then ResponseSuccess
-      <$> o .: "event_id"
+      <$> v .: "event_id"
     else ResponseFailure
-      <$> o .:  "errcode"
-      <*> o .:? "error"
-      <*> o .:? "retry_after_ms"
+      <$> v .:  "errcode"
+      <*> v .:? "error"
+      <*> v .:? "retry_after_ms"
   parseJSON _ = pure NoResponse

@@ -19,6 +19,7 @@ common common-options
                        -Widentities
                        -Wincomplete-uni-patterns
                        -Wincomplete-record-updates
+                       -Wno-orphans
   if impl(ghc >= 8.0)
     ghc-options:       -Wredundant-constraints
   if impl(ghc >= 8.2)
@@ -31,6 +32,7 @@ common common-options
                      , DeriveGeneric
                      , DerivingStrategies
                      , DerivingVia
+                     , DuplicateRecordFields
                      , GeneralizedNewtypeDeriving
                      , LambdaCase
                      , MultiWayIf
@@ -57,10 +59,6 @@ library
                        Echobot.Bots.Telegram.Types
                        Echobot.Bots.Xmpp
                        Echobot.Config
-                       Echobot.Connectors.Handle
-                       Echobot.Connectors.Irc
-                       Echobot.Connectors.Mattermost
-                       Echobot.Connectors.Xmpp
                        Echobot.Db
                        Echobot.Log
                        Echobot.Runner
@@ -73,7 +71,7 @@ library
                        Echobot.Types.Severity
                        Echobot.Types.Telegram
                        Echobot.Types.ToConnect
-                       Echobot.Types.Users
+                       Echobot.Types.User
                        Echobot.Types.Xmpp
   build-depends:       text
                      , time
@@ -84,9 +82,9 @@ library
                      , network
                      , aeson
                      , req
+                     , mattermost-api
                      , data-default
                      , pontarius-xmpp
-                     , mattermost-api
 
 executable echobot
   import:              common-options
