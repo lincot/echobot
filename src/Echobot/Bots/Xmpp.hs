@@ -42,16 +42,17 @@ xmppConnect host nick pswd = do
     Right s -> pure s
     Left  e -> error $ "[XMPP] " <> show e
 
-xmppBot :: App (Bot Text Jid)
-xmppBot = Bot getMessagesXmpp sendMessageXmpp pass "XMPP" <$> newIORef mempty
+xmppBot :: App (Bot () Jid)
+xmppBot =
+  Bot getMessagesXmpp (const $ sendMessageXmpp) pass "XMPP" <$> newIORef mempty
 
-getMessagesXmpp :: App [(Text, Jid, Text)]
+getMessagesXmpp :: App [((), Jid, Text)]
 getMessagesXmpp = do
   xmpp     <- grab
   message' <- liftIO $ getMessage xmpp
   case messageFrom message' of
     Just sender -> case getIM message' of
-      Just im -> pure $ ("", sender, ) . bodyContent <$> imBody im
+      Just im -> pure $ ((), sender, ) . bodyContent <$> imBody im
       Nothing -> do
         log D "XMPP" "received message with no IM data"
         getMessagesXmpp
@@ -59,8 +60,8 @@ getMessagesXmpp = do
       log D "XMPP" "received message with no sender"
       getMessagesXmpp
 
-sendMessageXmpp :: Text -> Text -> App ()
-sendMessageXmpp _ msg = do
+sendMessageXmpp :: Text -> App ()
+sendMessageXmpp msg = do
   xmpp <- grab
   let message' = withIM message { messageTo = Nothing }
                         instantMessage { imBody = [MessageBody Nothing msg] }

@@ -16,6 +16,6 @@ to run, edit `config.toml`, then `stack run`
 
 config gets read in `Echobot.Config`, then turned into an `AppEnv` in `Echobot`
 
-bots' behavior is in `Echobot.Runner`
+bots' behavior is in `Echobot.Run`
 
 the bots for different services are `Echobot.Bots.*`

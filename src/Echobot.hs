@@ -5,18 +5,20 @@ module Echobot
   ) where
 
 import           Data.List                      ( foldr1 )
+import qualified Data.Text                     as T
 import           Echobot.App.Env                ( Env(..) )
-import           Echobot.App.Monad              ( AppEnv
+import           Echobot.App.Monad              ( App
+                                                , AppEnv
                                                 , runApp
                                                 )
 import           Echobot.Bots.Irc               ( ircBot
                                                 , ircConnect
                                                 )
 import           Echobot.Bots.Matrix            ( matrixBot )
-import           Echobot.Bots.Mattermost        ( mattermostBot
-                                                , mattermostConnect
+import           Echobot.Bots.Mattermost        ( mattermostConnect
+                                                , mmBot
                                                 )
-import           Echobot.Bots.Telegram          ( telegramBot )
+import           Echobot.Bots.Telegram          ( tgBot )
 import           Echobot.Bots.Xmpp              ( xmppBot
                                                 , xmppConnect
                                                 )
@@ -24,7 +26,7 @@ import           Echobot.Config                 ( Config(..)
                                                 , loadConfig
                                                 )
 import           Echobot.Log                    ( logIO )
-import           Echobot.Runner                 ( botRunner )
+import           Echobot.Run                    ( runBot )
 import           Echobot.Types.Irc              ( Irc(..)
                                                 , IrcC(..)
                                                 )
@@ -42,18 +44,16 @@ import           UnliftIO.Async                 ( Concurrently(..)
                                                 , runConcurrently
                                                 )
 
-mkAppEnv :: Config -> IO AppEnv
-mkAppEnv Config {..} = foldr1
-  (>=>)
-  ((`snd` cSeverity) <$> filter (`fst` cConnect)
-    [ (connectIrc       , addIrc        cIrc)
-    , (connectMatrix    , addMatrix     cMatrix)
-    , (connectMattermost, addMattermost cMattermost)
-    , (connectTelegram  , addTelegram   cTelegram)
-    , (connectXmpp      , addXmpp       cXmpp)
-    ]
-  )
-  (Env { envSeverity = cSeverity, envDflts = cDflts, envMsgs = cMsgs })
+mkEnvAndApps :: Config -> IO (AppEnv, [App ()])
+mkEnvAndApps Config {..} = do
+  let l = snd <$> filter (`fst` cConnect)
+        [ (connectIrc       , (addIrc        cIrc       , runBot =<< ircBot))
+        , (connectMatrix    , (addMatrix     cMatrix    , runBot =<< matrixBot))
+        , (connectMattermost, (addMattermost cMattermost, runBot =<< mmBot))
+        , (connectTelegram  , (addTelegram   cTelegram  , runBot =<< tgBot))
+        , (connectXmpp      , (addXmpp       cXmpp      , runBot =<< xmppBot))
+        ]
+  (, snd <$> l) <$> (foldr1 (>=>) ((`fst` envSeverity) <$> l) $ Env {..})
 
 addIrc :: IrcC -> Severity -> Env m -> IO (Env m)
 addIrc IrcC {..} s env = do
@@ -64,7 +64,7 @@ addIrc IrcC {..} s env = do
 
 addMatrix :: MatrixC -> Severity -> Env m -> IO (Env m)
 addMatrix MatrixC {..} s env = do
-  maSinceR <- newIORef $ if maSince == "" then Nothing else Just maSince
+  maSinceR <- newIORef $ if T.null maSince then Nothing else Just maSince
   logIO s I "Matrix" "ready to go"
   pure env { envMatrix = Matrix {..} }
 
@@ -88,19 +88,7 @@ addXmpp XmppC {..} s env = do
   logIO s I "XMPP" "connected"
   pure env { envXmpp = xmpp }
 
-runBots :: AppEnv -> ToConnect -> IO ()
-runBots env ToConnect {..} = runApp env $ do
-  let actions = snd <$> filter fst
-        [ (connectIrc       , botRunner =<< ircBot)
-        , (connectMatrix    , botRunner =<< matrixBot)
-        , (connectMattermost, botRunner =<< mattermostBot)
-        , (connectTelegram  , botRunner =<< telegramBot)
-        , (connectXmpp      , botRunner =<< xmppBot)
-        ]
-  runConcurrently $ foldr1 (*>) $ Concurrently <$> actions
-
 main :: IO ()
 main = do
-  conf   <- loadConfig
-  appEnv <- mkAppEnv conf
-  runBots appEnv $ cConnect conf
+  (env, apps) <- mkEnvAndApps =<< loadConfig
+  runApp env $ runConcurrently $ foldr1 (*>) $ Concurrently <$> apps

@@ -61,7 +61,7 @@ library
                        Echobot.Config
                        Echobot.Db
                        Echobot.Log
-                       Echobot.Runner
+                       Echobot.Run
                        Echobot.Types.Bot
                        Echobot.Types.Dflts
                        Echobot.Types.Irc

@@ -18,28 +18,28 @@ import           Toml                           ( (.=)
 import qualified Toml
 
 data Config = Config
-  { cSeverity   :: !Severity
+  { envSeverity :: !Severity
   , cConnect    :: !ToConnect
   , cIrc        :: !IrcC
   , cMatrix     :: !MatrixC
   , cMattermost :: !MattermostC
   , cTelegram   :: !TelegramC
   , cXmpp       :: !XmppC
-  , cDflts      :: !Dflts
-  , cMsgs       :: !Msgs
+  , envDflts    :: !Dflts
+  , envMsgs     :: !Msgs
   }
 
 configCodec :: TomlCodec Config
 configCodec = Config
-  <$> Toml.read               "severity"   .= cSeverity
+  <$> Toml.read               "severity"   .= envSeverity
   <*> Toml.table connectCodec "connect"    .= cConnect
   <*> Toml.table ircCodec     "IRC"        .= cIrc
   <*> Toml.table matrixCodec  "Matrix"     .= cMatrix
   <*> Toml.table mmCodec      "Mattermost" .= cMattermost
   <*> Toml.table tgCodec      "Telegram"   .= cTelegram
   <*> Toml.table xmppCodec    "XMPP"       .= cXmpp
-  <*> Toml.table dfltsCodec   "defaults"   .= cDflts
-  <*> Toml.table msgsCodec    "messages"   .= cMsgs
+  <*> Toml.table dfltsCodec   "defaults"   .= envDflts
+  <*> Toml.table msgsCodec    "messages"   .= envMsgs
 
 connectCodec :: TomlCodec ToConnect
 connectCodec = ToConnect

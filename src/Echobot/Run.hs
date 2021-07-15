@@ -1,5 +1,5 @@
-module Echobot.Runner
-  ( botRunner
+module Echobot.Run
+  ( runBot
   ) where
 
 import qualified Data.Text                     as T
@@ -18,15 +18,15 @@ import           Echobot.Types.User             ( BotMode(..)
                                                 )
 import           UnliftIO.Exception             ( onException )
 
-botRunner :: (Eq u, Hashable u, ToText u) =>
-  Bot c u -> App ()
-botRunner bot@Bot {..} = do
-  log I botName "bot started"
-  onException (runBot bot) disableBot
-
 runBot :: (Eq u, Hashable u, ToText u) =>
   Bot c u -> App ()
-runBot bot@Bot {..} = forever $ mapM
+runBot bot@Bot {..} = do
+  log D botName "bot started"
+  onException (runBot' bot) disableBot
+
+runBot' :: (Eq u, Hashable u, ToText u) =>
+  Bot c u -> App ()
+runBot' bot@Bot {..} = forever $ mapM
   (\(chan, uid, msg) -> do
     log I botName $ "received message from " <> (toText uid `T.snoc` '\n')
       <> msg
