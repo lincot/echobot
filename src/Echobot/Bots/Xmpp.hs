@@ -44,7 +44,7 @@ xmppConnect host nick pswd = do
 
 xmppBot :: App (Bot () Jid)
 xmppBot =
-  Bot getMessagesXmpp (const $ sendMessageXmpp) pass "XMPP" <$> newIORef mempty
+  Bot getMessagesXmpp (const sendMessageXmpp) pass "XMPP" <$> newIORef mempty
 
 getMessagesXmpp :: App [((), Jid, Text)]
 getMessagesXmpp = do

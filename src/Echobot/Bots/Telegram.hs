@@ -1,5 +1,5 @@
 module Echobot.Bots.Telegram
-  ( tgBot
+  ( telegramBot
   ) where
 
 import           Data.Aeson                     ( FromJSON
@@ -24,8 +24,9 @@ instance ToText Int where
   toText = show
   {-# INLINE toText #-}
 
-tgBot :: App (Bot Int Int)
-tgBot = Bot getMessagesTg sendMessageTg pass "Telegram" <$> newIORef mempty
+telegramBot :: App (Bot Int Int)
+telegramBot =
+  Bot getMessagesTg sendMessageTg pass "Telegram" <$> newIORef mempty
 
 reqTg :: (FromJSON a, Show a) =>
   Text -> Text -> Network.HTTP.Req.Option 'Https -> App (Either Text a)

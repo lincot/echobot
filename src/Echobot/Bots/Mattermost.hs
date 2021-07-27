@@ -1,5 +1,5 @@
 module Echobot.Bots.Mattermost
-  ( mmBot
+  ( mattermostBot
   , mattermostConnect
   ) where
 
@@ -23,8 +23,9 @@ mattermostConnect host port path nick pswd = do
                            defaultConnectionPoolConfig
   fst <$> (hoistE =<< mmLogin cd (Login nick pswd))
 
-mmBot :: App (Bot ChannelId UserId)
-mmBot = Bot getMessagesMM sendMessageMM pass "Mattermost" <$> newIORef mempty
+mattermostBot :: App (Bot ChannelId UserId)
+mattermostBot =
+  Bot getMessagesMM sendMessageMM pass "Mattermost" <$> newIORef mempty
 
 getMessagesMM :: App [(ChannelId, UserId, Text)]
 getMessagesMM = do

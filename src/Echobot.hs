@@ -15,10 +15,10 @@ import           Echobot.Bots.Irc               ( ircBot
                                                 , ircConnect
                                                 )
 import           Echobot.Bots.Matrix            ( matrixBot )
-import           Echobot.Bots.Mattermost        ( mattermostConnect
-                                                , mmBot
+import           Echobot.Bots.Mattermost        ( mattermostBot
+                                                , mattermostConnect
                                                 )
-import           Echobot.Bots.Telegram          ( tgBot )
+import           Echobot.Bots.Telegram          ( telegramBot )
 import           Echobot.Bots.Xmpp              ( xmppBot
                                                 , xmppConnect
                                                 )
@@ -45,15 +45,16 @@ import           UnliftIO.Async                 ( Concurrently(..)
                                                 )
 
 mkEnvAndApps :: Config -> IO (AppEnv, [App ()])
-mkEnvAndApps Config {..} = do
-  let l = snd <$> filter (`fst` cConnect)
-        [ (connectIrc       , (addIrc        cIrc       , runBot =<< ircBot))
-        , (connectMatrix    , (addMatrix     cMatrix    , runBot =<< matrixBot))
-        , (connectMattermost, (addMattermost cMattermost, runBot =<< mmBot))
-        , (connectTelegram  , (addTelegram   cTelegram  , runBot =<< tgBot))
-        , (connectXmpp      , (addXmpp       cXmpp      , runBot =<< xmppBot))
-        ]
+mkEnvAndApps Config {..} =
   (, snd <$> l) <$> (foldr1 (>=>) ((`fst` envSeverity) <$> l) $ Env {..})
+ where
+  l = snd <$> filter (`fst` cConnect)
+    [ (connectIrc       , (addIrc        cIrc       , runBot =<< ircBot))
+    , (connectMatrix    , (addMatrix     cMatrix    , runBot =<< matrixBot))
+    , (connectMattermost, (addMattermost cMattermost, runBot =<< mattermostBot))
+    , (connectTelegram  , (addTelegram   cTelegram  , runBot =<< telegramBot))
+    , (connectXmpp      , (addXmpp       cXmpp      , runBot =<< xmppBot))
+    ]
 
 addIrc :: IrcC -> Severity -> Env m -> IO (Env m)
 addIrc IrcC {..} s env = do
