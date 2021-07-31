@@ -2,7 +2,6 @@ module Echobot.Run
   ( runBot
   ) where
 
-import qualified Data.Text                     as T
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
 import           Echobot.Db                     ( getUser
@@ -28,8 +27,7 @@ runBot' :: (Eq u, Hashable u, ToText u) =>
   Bot c u -> App ()
 runBot' bot@Bot {..} = forever $ mapM
   (\(chan, uid, msg) -> do
-    log I botName $ "received message from " <> (toText uid `T.snoc` '\n')
-      <> msg
+    log I botName $ "received message from " <> cyan uid <> "\n" <> msg
     react bot chan uid msg
   ) =<< getMessages
 
@@ -42,7 +40,7 @@ react bot@Bot {..} chan uid msg = do
       AwaitingRepeatCountMode -> reactRepeatCount bot chan uid user msg
       NormalMode              -> reactNormal      bot chan uid user msg
     Nothing -> do
-      log D botName $ toText uid <> " is absent in db"
+      log D botName $ cyan uid <> " is absent in db"
       reactNew bot chan uid msg
 
 reactNew :: (Eq u, Hashable u) =>
@@ -80,12 +78,12 @@ reactRepeatCount bot@Bot {..} chan uid user msg =
       | 5 < c -> invalid "too big"
       | otherwise -> do
         log I botName $ "changing repeat count to " <> show c
-          <> " for " <> toText uid
+          <> " for " <> cyan uid
         putUser users uid user { userRepeatCount = c, userMode = NormalMode }
     Nothing -> invalid "not a"
  where
-  invalid n = do
-    log W botName $ "got " <> n <> " number from " <> toText uid
+  invalid what = do
+    log W botName $ "got " <> what <> " number from " <> cyan uid
     Msgs {..} <- grab
     sendMessage' bot chan invalidMsg
 
@@ -93,3 +91,6 @@ sendMessage' :: Bot c u -> c -> Text -> App ()
 sendMessage' Bot{..} chan msg = do
   log I botName $ "sending message\n" <> msg
   sendMessage chan msg
+
+cyan :: ToText u => u -> Text
+cyan u = "\ESC[96m" <> toText u <> "\ESC[0m"

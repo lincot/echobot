@@ -19,10 +19,6 @@ logIO :: Severity -> Severity -> Text -> Text -> IO ()
 logIO minSev sev loc msg = unless (sev < minSev) $ do
   time <- getCurrentTime
   putText
-    $  toText sev <> " [" <> pad 35 (show time <> "] ")
-    <> magenta    <>  "[" <> pad 10 (loc       <> "] ")
-    <> reset <> (msg `T.snoc` '\n')
- where
-  magenta = "\ESC[95m"
-  reset   = "\ESC[0m"
-  pad n t = t <> T.replicate (n - T.length t) " "
+    $  toText sev <> " [" <> T.justifyLeft 35 ' ' (show time <> "] ")
+    <> "\ESC[95m" <>  "[" <> T.justifyLeft 10 ' ' (loc       <> "] ") -- magenta
+    <> "\ESC[0m"  <> msg  <> "\n"

@@ -5,7 +5,6 @@ module Echobot.Bots.Matrix
 import           Control.Exception              ( throwIO )
 import           Data.Aeson                     ( parseJSON )
 import           Data.Aeson.Types               ( parseEither )
-import qualified Data.Text                     as T
 import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
 import           Echobot.Bots.Matrix.Types      ( Content(..)
@@ -52,17 +51,16 @@ getMessagesM = do
   Matrix {..} <- grab
   mrooms      <- sync
   case mrooms of
-    Just (Rooms (Just hm)) -> do
+    Just (Rooms (Just hm)) ->
       let notMyTextMessage = (\RoomEvent{..}
-            -> eventType            == "m.room.message"
-            && sender               /= maName
-            && msgtype content      == "m.text")
+            -> eventType       == "m.room.message"
+            && sender          /= maName
+            && msgtype content == "m.text")
           events'' = [ (roomId, filter notMyTextMessage events')
                      | (roomId, JoinedRoom (Just (Timeline (Just events'))))
                      <- toPairs hm ]
-          transform = (>>= (\(roomId, events') -> events' <&> (\RoomEvent{..}
-                    -> ((roomId, event_id), sender, body content))))
-      pure $ transform events''
+      in pure $ events'' >>= (\(roomId, events') -> events' <&> (\RoomEvent{..}
+           -> ((roomId, event_id), sender, body content)))
     _ -> getMessagesM
 
 sendMessageM :: (Text, Text) -> Text -> App ()
@@ -81,8 +79,7 @@ sendMessageM (roomId, msgId) msg = do
     Left  e                          -> again (toText e) Nothing Nothing
  where
   again e me mms = do
-    log E "Matrix" $ "could not deliver message:" <> e
-      <> maybe "" (T.cons '\n') me
+    log E "Matrix" $ "could not deliver message:" <> e <> maybe "" ("\n" <>) me
     case mms of
       Nothing -> pass
       Just ms -> concurrently_ (threadDelay $ 1000 * ms)
