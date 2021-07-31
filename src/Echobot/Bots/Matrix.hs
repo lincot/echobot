@@ -32,7 +32,7 @@ instance MonadHttp IO where
 
 sync :: App (Maybe Rooms)
 sync = do
-  Matrix {..} <- grab
+  Matrix{..} <- grab
   since       <- readIORef maSinceR
   let url = apiBase maHomeserver /: "sync"
       limit = "{\"room\":{\"timeline\":{\"limit\":5}}}" :: Text
@@ -48,7 +48,7 @@ sync = do
 
 getMessagesM :: App [((Text, Text), Text, Text)]
 getMessagesM = do
-  Matrix {..} <- grab
+  Matrix{..} <- grab
   mrooms      <- sync
   case mrooms of
     Just (Rooms (Just hm)) ->
@@ -65,7 +65,7 @@ getMessagesM = do
 
 sendMessageM :: (Text, Text) -> Text -> App ()
 sendMessageM (roomId, msgId) msg = do
-  Matrix {..} <- grab
+  Matrix{..} <- grab
   let url = apiBase maHomeserver /: "rooms" /: roomId
           /: "send" /: "m.room.message" /: msgId
       reqBody = ReqBodyJson $ MessageContent "m.text" msg

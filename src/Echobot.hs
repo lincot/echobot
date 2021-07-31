@@ -45,8 +45,8 @@ import           UnliftIO.Async                 ( Concurrently(..)
                                                 )
 
 mkEnvAndApps :: Config -> IO (AppEnv, [App ()])
-mkEnvAndApps Config {..} =
-  (, snd <$> l) <$> (foldr1 (>=>) ((`fst` envSeverity) <$> l) $ Env {..})
+mkEnvAndApps Config{..} =
+  (, snd <$> l) <$> (foldr1 (>=>) ((`fst` envSeverity) <$> l) $ Env{..})
  where
   l = snd <$> filter (`fst` cConnect)
     [ (connectIrc       , (addIrc        cIrc       , runBot =<< ircBot))
@@ -57,33 +57,33 @@ mkEnvAndApps Config {..} =
     ]
 
 addIrc :: IrcC -> Severity -> Env m -> IO (Env m)
-addIrc IrcC {..} s env = do
+addIrc IrcC{..} s env = do
   logIO s I "IRC" "connecting..."
   ircSocket <- ircConnect ircHost ircPort ircChan ircNick ircName
   logIO s I "IRC" "connected"
-  pure env { envIrc = Irc {..} }
+  pure env { envIrc = Irc{..} }
 
 addMatrix :: MatrixC -> Severity -> Env m -> IO (Env m)
-addMatrix MatrixC {..} s env = do
+addMatrix MatrixC{..} s env = do
   maSinceR <- newIORef $ if T.null maSince then Nothing else Just maSince
   logIO s I "Matrix" "ready to go"
-  pure env { envMatrix = Matrix {..} }
+  pure env { envMatrix = Matrix{..} }
 
 addMattermost :: MattermostC -> Severity -> Env m -> IO (Env m)
-addMattermost MattermostC {..} s env = do
+addMattermost MattermostC{..} s env = do
   logIO s I "Mattermost" "connecting..."
   mm <- mattermostConnect mmHost mmPort mmPath mmNick mmPswd
   logIO s I "Mattermost" "connected"
   pure env { envMattermost = mm }
 
 addTelegram :: TelegramC -> Severity -> Env m -> IO (Env m)
-addTelegram TelegramC {..} s env = do
+addTelegram TelegramC{..} s env = do
   tgOffsetR <- newIORef tgOffset
   logIO s I "Telegram" "ready to go"
-  pure env { envTelegram = Telegram {..} }
+  pure env { envTelegram = Telegram{..} }
 
 addXmpp :: XmppC -> Severity -> Env m -> IO (Env m)
-addXmpp XmppC {..} s env = do
+addXmpp XmppC{..} s env = do
   logIO s I "XMPP" "connecting..."
   xmpp <- xmppConnect xmppHost xmppNick xmppPswd
   logIO s I "XMPP" "connected"

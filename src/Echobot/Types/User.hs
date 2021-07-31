@@ -1,6 +1,6 @@
 module Echobot.Types.User
-  ( BotMode(..)
-  , User(..)
+  ( User(..)
+  , UserMode(..)
   , UsersR
   , newUser
   ) where
@@ -9,18 +9,16 @@ import           Echobot.App.Env                ( grab )
 import           Echobot.App.Monad              ( App )
 import           Echobot.Types.Dflts            ( Dflts(..) )
 
-data BotMode = NormalMode | AwaitingRepeatCountMode
+data UserMode = Normal | PendingRepeatCount
 
--- bot mode separately for each user
--- so others can't set your value in a group chat
 data User = User
-  { userMode        :: !BotMode
-  , userRepeatCount :: !Int
+  { userMode        :: UserMode
+  , userRepeatCount :: Int
   }
 
 type UsersR u = IORef (HashMap u User)
 
-newUser :: BotMode -> App User
+newUser :: UserMode -> App User
 newUser userMode = do
-  Dflts {..} <- grab
-  pure User { .. }
+  Dflts{..} <- grab
+  pure User{..}

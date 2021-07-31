@@ -40,14 +40,14 @@ ircBot = Bot getMessagesIrc sendMessageIrc disableIrc "IRC" <$> newIORef mempty
 
 writeIrc :: Text -> Text -> App ()
 writeIrc cmd args = do
-  Irc {..} <- grab
+  Irc{..} <- grab
   let line = cmd <> " " <> args
   log D "IRC" $ "writing\n" <> line
   liftIO $ hPutStrLn ircSocket line
 
 getMessagesIrc :: App [(Text, Text, Text)]
 getMessagesIrc = do
-  Irc {..} <- grab
+  Irc{..} <- grab
   line     <- liftIO $ hGetLine ircSocket
   log D "IRC" $ "reading\n" <> line
   let (src, cmd, _, msg) = parseLine line
@@ -66,7 +66,7 @@ sendMessageIrc chan = mapM_ (writeIrc "PRIVMSG" . ((chan <> " :") <>)) . lines
 
 disableIrc :: App ()
 disableIrc = do
-  Irc {..} <- grab
+  Irc{..} <- grab
   log D "IRC" "closing handle"
   hClose ircSocket
 

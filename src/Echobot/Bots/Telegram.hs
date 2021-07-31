@@ -43,7 +43,7 @@ reqTg token method params = do
 
 getUpdates :: App [TgUpdate]
 getUpdates = do
-  Telegram {..} <- grab
+  Telegram{..} <- grab
   offset        <- readIORef tgOffsetR
   r <- reqTg tgToken "getUpdates"
     $  "offset"  =: offset
@@ -68,7 +68,7 @@ getMessagesTg = do
 
 sendMessageTg :: Int -> Text -> App ()
 sendMessageTg chat msg = do
-  Telegram {..} <- grab
+  Telegram{..} <- grab
   r <- reqTg tgToken "sendMessage"
     $  "chat_id" =: chat
     <> "text"    =: msg
